@@ -4,7 +4,13 @@ import 'package:bookes/responsive/web_screen_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-void main() {
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+void main()async {
+
+
+
+   await Firebase.initializeApp();
   runApp(const MyApp());
 }
 

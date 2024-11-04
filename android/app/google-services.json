@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "698847173183",
+    "project_id": "bookedup-af5ef",
+    "storage_bucket": "bookedup-af5ef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698847173183:android:cfd6ac05e46be241e9b68a",
+        "android_client_info": {
+          "package_name": "com.example.bookes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHMlbvz1HMgkPROU_OqsDKJcSwK6a5P8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
