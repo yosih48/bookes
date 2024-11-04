@@ -41,7 +41,7 @@ class MyWidget extends StatelessWidget {
             child: const Text('Signout'),
           ),
         ]),
-      ),
+      
     );
   }
 }
