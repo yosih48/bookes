@@ -1,0 +1,30 @@
+{
+  
+    "add": "הוסף",
+   
+    
+    "enteryourusername": "הכנס שם משתמש",
+    "enteryourpassword": "הזן סיסמה",
+    "login": "היכנס",
+    "donthaveanaccount": "עדיין אין לך חשבון?",
+    "allreadyhaveanaccount": "כבר יש לך חשבון?",
+    "signup": "הירשם",
+
+   
+    "logout": "התנתק",
+"createpassword": "צור סיסמה",
+    "username": "שם משתמש",
+    "email": "כתובת אימייל",
+ "signinwithgoogle": "היכנס עם חשבון גוגל",
+    "password": "סיסמה",
+    "cancel": "ביטול",
+    "phonenumber": "טלפון",
+"username": "שם משתמש",
+    "saveeditcall": "שמור",
+   "or": "או",
+   "forgotpassword": "שכחתי סיסמה",
+    "yes": "כן",
+    "signout": "התנתק"
+
+             
+}

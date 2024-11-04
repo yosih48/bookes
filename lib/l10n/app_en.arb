@@ -1,0 +1,44 @@
+{
+    
+  
+
+    "enteryourusername": "Enter your username",
+    "enteryourpassword": "Enter password",
+    "login": "log in",
+    "donthaveanaccount": "dont have an account?",
+    "allreadyhaveanaccount": "allready have an account?",
+    "signup": "sign up",
+ 
+  
+    "logout": "log Out",
+
+    "name": "name",
+    "email": "email address",
+
+    "password": "password",
+    "add": "add",
+    "cancel": "cancel",
+    "phonenumber": "phone",
+  "createpassword": "Create password",
+    "saveeditcall": "Save",
+"signinwithgoogle": "Sign In with Google",
+    "enter": "Enter",
+    "exit": "Exit",
+ "forgotpassword": "Forgot Password?",
+    "createnewgroup": "Create New Group",
+    "entergroupname": "Enter group name",
+    "create": "Create",
+    "mygroups": "My Groups",
+    "confirmsignout": "Confirm Signout",
+    "leaveapp": "Are you sure you want to sign out",
+    "yes": "yes",
+    "signout": "Sign Out",
+    "username": "User Name",
+    "or": "or"
+    
+
+
+    
+
+             
+}
