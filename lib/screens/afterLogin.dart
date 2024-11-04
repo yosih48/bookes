@@ -42,6 +42,6 @@ class MyWidget extends StatelessWidget {
           ),
         ]),
       
-    );
+    ));
   }
 }
