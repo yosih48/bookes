@@ -1,3 +1,7 @@
+import 'package:bookes/resources/auth.dart';
+import 'package:bookes/responsive/mobile_screen_layout.dart';
+import 'package:bookes/responsive/rsponsive_layout_screen.dart';
+import 'package:bookes/responsive/web_screen_layout.dart';
 import 'package:bookes/screens/signup_screen.dart';
 import 'package:bookes/theme/colors.dart';
 import 'package:bookes/widgets/googleSignIn.dart';
@@ -12,7 +16,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   List<String> _employeeUsernames = [];
@@ -24,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -80,29 +84,36 @@ class _LoginScreenState extends State<LoginScreen> {
   //   }
   // }
 
-//   void loginUser() async {
-//     if (!mounted) return;
+  void loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await AuthMethods().loginUser(
+        email: _emailController.text, password: _passwordController.text);
+    if (res == 'success') {
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const ResponsiveLayout(
+                mobileScreenLayout: MobileScreenLayout(),
+                webScreenLayout: WebScreenLayout(),
+              ),
+            ),
+            (route) => false);
 
-//     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-//     try {
-//       String? fcmToken = await FirebaseMessaging.instance.getToken();
-//       print('fcmToken: $fcmToken');
-
-//       await authProvider.login(
-//           _usernameController.text, _passwordController.text, fcmToken);
-
-// // String? fcmToken = await FirebaseMessaging.instance.getToken();
-// // print('fcmToken: ${fcmToken}');
-// //  await sendFCMTokenToServer(fcmToken);
-//     } catch (e) {
-//       if (!mounted) return;
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(content: Text(AppLocalizations.of(context)!.loginfailed)),
-//       );
-//     }
-//   }
-
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      if (context.mounted) {
+        // showSnackBar(context, res);
+      }
+    }
+  }
 
 
   @override
@@ -138,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 onSelected: (String selection) {
                   setState(() {
-                    _usernameController.text = selection;
+                    _emailController.text = selection;
                   });
                 },
                 fieldViewBuilder: (BuildContext context,
@@ -171,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     cursorColor: Colors.blue,
                     onChanged: (value) {
-                      _usernameController.text = value;
+                      _emailController.text = value;
                     },
                   );
                 },
@@ -257,7 +268,9 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
 
               InkWell(
-                // onTap: authProvider.isLoading ? null : loginUser,
+                onTap: 
+                //authProvider.isLoading ? null : 
+                loginUser,
                 child: Container(
                   child:
                   //  authProvider.isLoading

@@ -1,5 +1,7 @@
+import 'package:bookes/resources/auth.dart';
 import 'package:bookes/screens/login.dart';
 import 'package:bookes/theme/colors.dart';
+import 'package:bookes/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 
 
@@ -29,15 +31,38 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
 
     _usernameController.dispose();
   }
-
-  void selectImage() async {}
+  void signUpUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await AuthMethods().signUpUser(
+      email: _emailController.text,
+      password: _passwordController.text,
+      username: _usernameController.text,
+    );
+    setState(() {
+      _isLoading = false;
+    });
+    if (res != 'success') {
+      showSnackBar(context, res);
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const ResponsiveLayout(
+            mobileScreenLayout: MobileScreenLayout(),
+            webScreenLayout: WebScreenLayout(),
+          ),
+        ),
+      );
+    }
+  }
 
 
 
@@ -161,7 +186,7 @@ class _SignupScreenState extends State<SignupScreen> {
               //button login
 
               InkWell(
-                // onTap: signUpUser,
+                onTap: signUpUser,
                 child: Container(
                   child: _isLoading
                       ? const Center(
