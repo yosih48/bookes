@@ -5,6 +5,7 @@ import 'package:bookes/responsive/web_screen_layout.dart';
 import 'package:bookes/screens/signup_screen.dart';
 import 'package:bookes/theme/colors.dart';
 import 'package:bookes/widgets/googleSignIn.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -33,56 +34,38 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // Future<void> sendResetEmail() async {
-  //   try {
-  //     final resetToken =
-  //         await UsersMethods().sendEmail(_usernameController.text, context);
-  //     print('Reset token received: $resetToken');
+Future<void> resetPassword(BuildContext context, String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      // Show a success message to the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password reset email has been sent to $email")),
+      );
+    } on FirebaseAuthException catch (e) {
+      String message;
 
-  //     // Store token in memory
-  //     TokenManager.setToken(resetToken);
-  //     print('Token stored in memory');
+      // Handling specific errors
+      if (e.code == 'invalid-email') {
+        message = "The email address is not valid. Please enter a valid email.";
+      } else if (e.code == 'user-not-found') {
+        message = "No user found with this email address.";
+      } else {
+        message = "An error occurred. Please try again later.";
+      }
 
-  //     // Show dialog
-  //     if (context.mounted) {
-  //       showDialog(
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             backgroundColor: cards,
-  //             title: Text(
-  //               AppLocalizations.of(context)!.emailsent,
-  //               style: TextStyle(
-  //                 color: Colors.white,
-  //               ),
-  //             ),
-  //             content: Text(
-  //               AppLocalizations.of(context)!.emailsentlink,
-  //               style: TextStyle(
-  //                 color: Colors.white,
-  //               ),
-  //             ),
-  //             actions: <Widget>[
-  //               TextButton(
-  //                 child: Text('OK'),
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop();
-  //                 },
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     }
-  //   } catch (e) {
-  //     print('Exception in sendResetEmail: $e');
-  //     if (context.mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text(e.toString())),
-  //       );
-  //     }
-  //   }
-  // }
+      // Show an error message to the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } catch (e) {
+      // Catch any other errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("An unexpected error occurred. Please try again.")),
+      );
+    }
+  }
+
 
   void loginUser() async {
     setState(() {
@@ -160,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: fieldTextEditingController,
                     focusNode: fieldFocusNode,
                     decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.name,
+                      labelText: AppLocalizations.of(context)!.email,
                       labelStyle: TextStyle(
                         color: Colors.blue, // Change this to your desired color
                       ),
@@ -250,7 +233,15 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 10),
               GestureDetector(
-                // onTap: authProvider.isLoading ? null : sendResetEmail,
+             onTap: ()async {
+                  String email = _emailController.text; // Replace with the user's email
+          await resetPassword(context,email);
+    // Show a confirmation message to the user
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Password reset email has been sent to $email")),
+    );
+             },
+                //authProvider.isLoading ? null :
                 child: Container(
                   child: Align(
                     alignment: Alignment.centerRight,
