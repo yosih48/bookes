@@ -46,6 +46,8 @@ dependencies:
   lucide_icons: ^0.257.0
   flutter_google_places: ^0.3.0
   google_api_headers: ^1.6.0
+  geolocator: ^11.1.0
+  geocoding: ^3.0.0
   # google_places_flutter: ^2.0.9
   
 

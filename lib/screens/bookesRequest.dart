@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_api_headers/google_api_headers.dart';
-
-
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class BookRequestScreen extends StatefulWidget {
   @override
@@ -16,6 +16,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
   final _authorController = TextEditingController();
   final _conditionController = TextEditingController();
   String _selectedLocation = '';
+  Position? _currentPosition;
 
   void _submitRequest() {
     if (_formKey.currentState!.validate()) {
@@ -35,26 +36,71 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
       });
     }
   }
-void _selectLocation() async {
-    // Replace 'YOUR_GOOGLE_MAPS_API_KEY' with your actual API key
-    final predictionResult = await PlacesAutocomplete.show(
-      context: context,
-      apiKey: 'YOUR_GOOGLE_MAPS_API_KEY',
-      mode: Mode.overlay,
-      language: 'en',
-      // countriesFilter: ['us'],
-      strictbounds: false,
-      onError: (response) {
-        print(response.errorMessage);
-      },
-    );
+  Future<bool> _handleLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
 
-    if (predictionResult != null) {
-      setState(() {
-        // Only store the city/neighborhood name, not the full address
-        _selectedLocation = predictionResult.description!;
-      });
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Location services are disabled. Please enable them.')),
+      );
+      return false;
     }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Location permissions are denied.')),
+        );
+        return false;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Location permissions are permanently denied.'),
+        ),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> _getCurrentLocation() async {
+    final hasPermission = await _handleLocationPermission();
+    
+    if (!hasPermission) return;
+
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        setState(() {
+          _currentPosition = position;
+          // Only store city and neighborhood for privacy
+          _selectedLocation = '${place.locality ?? ''}, ${place.subLocality ?? ''}';
+        });
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void _selectLocation() async {
+    await _getCurrentLocation();
   }
 
   @override
@@ -112,24 +158,28 @@ void _selectLocation() async {
                 },
               ),
               SizedBox(height: 16.0),
-                InkWell(
-                onTap: _selectLocation,
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    initialValue: _selectedLocation,
-                    decoration: InputDecoration(
-                      labelText: 'General Location',
-                      prefixIcon: Icon(LucideIcons.mapPin),
-                    ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please select a location';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ),
+              InkWell(
+      onTap: _selectLocation,
+      child: AbsorbPointer(
+        child: TextFormField(
+          initialValue: _selectedLocation,
+          decoration: InputDecoration(
+            labelText: 'General Location',
+            prefixIcon: Icon(LucideIcons.mapPin),
+            suffixIcon: IconButton(
+              icon: Icon(LucideIcons.locate),
+              onPressed: _getCurrentLocation,
+            ),
+          ),
+          validator: (value) {
+            if (value?.isEmpty ?? true) {
+              return 'Please select a location';
+            }
+            return null;
+          },
+        ),
+      ),
+    ),
               SizedBox(height: 24.0),
               ElevatedButton(
                 onPressed: _submitRequest,
