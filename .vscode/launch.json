@@ -11,6 +11,12 @@
              "deviceId": "sdk gphone64 x86 64",
         },
         {
+            "name": "bookes home",
+            "request": "launch",
+            "type": "dart",
+             "deviceId": "sdk gphone x86 64",
+        },
+        {
             "name": "bookes (profile mode)",
             "request": "launch",
             "type": "dart",
