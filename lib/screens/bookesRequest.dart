@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:bookes/models/BookRequest.dart';
 import 'package:bookes/resources/BookRequest.dart';
+import 'package:bookes/resources/StorageService.dart';
+import 'package:bookes/widgets/ImagePicker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
@@ -8,7 +12,9 @@ import 'package:google_api_headers/google_api_headers.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 class BookRequestScreen extends StatefulWidget {
   @override
   _BookRequestScreenState createState() => _BookRequestScreenState();
@@ -24,7 +30,10 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
   String _selectedLocation = '';
   Position? _currentPosition;
   bool _isLoading = false;
+  File? _selectedImage;
+  final _storageService = StorageService();
 
+  
   @override
   void dispose() {
     _locationController.dispose();
@@ -34,14 +43,22 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
 
 
   void _submitRequest() async {
-    final userID = userId;
-    print(userId);
+  
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
       try {
+
+     String? imageUrl;
+          if (_selectedImage != null) {
+          imageUrl = await StorageService().uploadImage(
+            imageFile: _selectedImage!,
+            path: 'book_images', // Folder in Firebase Storage
+          );
+        }
+
         // Create book request object
         final bookRequest = BookRequest(
         
@@ -50,6 +67,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
           author: _authorController.text,
           condition: _conditionController.text,
           location: _selectedLocation,
+           imageUrl: imageUrl, 
           coordinates: _currentPosition != null
               ? GeoPoint(
                   _currentPosition!.latitude, _currentPosition!.longitude)
@@ -94,6 +112,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
     setState(() {
       _selectedLocation = '';
       _currentPosition = null;
+       _selectedImage = null;
     });
   }
 
@@ -253,6 +272,18 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                   ),
                 ),
               ),
+                SizedBox(height: 16.0),
+     ImagePickerWidget(
+            selectedImage: _selectedImage,
+            onImageSelected: (File? file) {
+              setState(() {
+                _selectedImage = file;
+              });
+            },
+            placeholder: 'Tap to add book image', // Optional custom placeholder
+            height: 200, // Optional custom height
+          ),
+
               SizedBox(height: 24.0),
               ElevatedButton(
                 onPressed: _submitRequest,

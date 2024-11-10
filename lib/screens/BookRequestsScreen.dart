@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:bookes/models/BookRequest.dart';
 import 'package:bookes/resources/BookRequest.dart';
 import 'package:bookes/widgets/BookRequestCard.dart';
@@ -5,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-
+import 'package:image_picker/image_picker.dart';
 class BookRequestsScreen extends StatefulWidget {
   @override
   _BookRequestsScreenState createState() => _BookRequestsScreenState();
@@ -18,7 +20,7 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
   Position? _currentPosition;
   List<BookRequest> _requests = [];
   final double _nearbyRadiusKm = 10.0; // Adjust radius as needed
-
+  Uint8List? _file;
   @override
   void initState() {
     super.initState();
@@ -144,6 +146,7 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
                     itemCount: _requests.length,
                     itemBuilder: (context, index) {
                       final request = _requests[index];
+                      print(request);
                       return BookRequestCard(
                         request: request,
                         distance: _showNearbyOnly && _currentPosition != null

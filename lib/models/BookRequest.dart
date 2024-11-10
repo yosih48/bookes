@@ -9,6 +9,7 @@ class BookRequest {
   final String location;
   final GeoPoint coordinates; // For storing latitude and longitude
   final DateTime createdAt;
+    final String? imageUrl; 
 
   BookRequest({
      this.id,
@@ -19,6 +20,7 @@ class BookRequest {
     required this.location,
     required this.coordinates,
     required this.createdAt,
+     this.imageUrl,
   });
 
   // Convert to Map for Firestore
@@ -31,6 +33,7 @@ class BookRequest {
       'location': location,
       'coordinates': coordinates,
       'createdAt': createdAt,
+        'imageUrl': imageUrl,
     };
   }
 
@@ -44,6 +47,7 @@ class BookRequest {
       author: data['author'] ?? '',
       condition: data['condition'] ?? '',
       location: data['location'] ?? '',
+        imageUrl: data['imageUrl'],
       coordinates: data['coordinates'] ?? const GeoPoint(0, 0),
       createdAt: (data['createdAt'] as Timestamp).toDate(),
     );
