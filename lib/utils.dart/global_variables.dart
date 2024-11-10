@@ -1,3 +1,4 @@
+import 'package:bookes/screens/BookRequestsScreen.dart';
 import 'package:bookes/screens/afterLogin.dart';
 import 'package:bookes/screens/apiBookes.dart';
 import 'package:bookes/screens/bookesRequest.dart';
@@ -11,5 +12,6 @@ List<Widget> homeScreenItems = [
 MyWidget(),
 LoginScreen(),
 MainDashboard(),
-BookRequestScreen()
+BookRequestScreen(),
+BookRequestsScreen()
 ];

@@ -1,9 +1,13 @@
+import 'package:bookes/models/BookRequest.dart';
+import 'package:bookes/resources/BookRequest.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BookRequestScreen extends StatefulWidget {
   @override
@@ -11,31 +15,88 @@ class BookRequestScreen extends StatefulWidget {
 }
 
 class _BookRequestScreenState extends State<BookRequestScreen> {
+  String userId = FirebaseAuth.instance.currentUser!.uid;
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _authorController = TextEditingController();
   final _conditionController = TextEditingController();
+  final _locationController = TextEditingController();
   String _selectedLocation = '';
   Position? _currentPosition;
+  bool _isLoading = false;
 
-  void _submitRequest() {
+  @override
+  void dispose() {
+    _locationController.dispose();
+    super.dispose();
+  }
+
+
+
+  void _submitRequest() async {
+    final userID = userId;
+    print(userId);
     if (_formKey.currentState!.validate()) {
-      // Handle form submission, e.g., save the request to a database
-      print('Book Request Submitted:');
-      print('Title: ${_titleController.text}');
-      print('Author: ${_authorController.text}');
-      print('Condition: ${_conditionController.text}');
-        print('Location: $_selectedLocation');
-
-      // Clear the form fields
-      _titleController.clear();
-      _authorController.clear();
-      _conditionController.clear();
-          setState(() {
-        _selectedLocation = '';
+      setState(() {
+        _isLoading = true;
       });
+
+      try {
+        // Create book request object
+        final bookRequest = BookRequest(
+        
+          userId: userId, // Assuming you have this from auth
+          title: _titleController.text,
+          author: _authorController.text,
+          condition: _conditionController.text,
+          location: _selectedLocation,
+          coordinates: _currentPosition != null
+              ? GeoPoint(
+                  _currentPosition!.latitude, _currentPosition!.longitude)
+              : const GeoPoint(0, 0),
+          createdAt: DateTime.now(),
+        );
+
+        // Save to Firestore
+         final createdRequest=  BookRequestService().createBookRequest(bookRequest);
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Book request submitted successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Clear form
+        _clearForm();
+      } catch (e) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error submitting request: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
+
+  void _clearForm() {
+    _titleController.clear();
+    _authorController.clear();
+    _conditionController.clear();
+    _locationController.clear();
+    setState(() {
+      _selectedLocation = '';
+      _currentPosition = null;
+    });
+  }
+
   Future<bool> _handleLocationPermission() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -43,7 +104,9 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Location services are disabled. Please enable them.')),
+        SnackBar(
+            content:
+                Text('Location services are disabled. Please enable them.')),
       );
       return false;
     }
@@ -72,15 +135,17 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
   }
 
   Future<void> _getCurrentLocation() async {
+    print('_getCurrentLocation');
     final hasPermission = await _handleLocationPermission();
-    
+
     if (!hasPermission) return;
 
     try {
+      print('hasPermission');
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      
+
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
@@ -90,9 +155,16 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
         Placemark place = placemarks[0];
         setState(() {
           _currentPosition = position;
+          print('_currentPosition: ${_currentPosition}');
           // Only store city and neighborhood for privacy
-          _selectedLocation = '${place.locality ?? ''}, ${place.subLocality ?? ''}';
+          _selectedLocation =
+              '${place.locality ?? ''}, ${place.subLocality ?? ''}';
+          _locationController.text = _selectedLocation;
+          print('_selectedLocation: ${_selectedLocation}');
+          print('_locationController.text: ${_locationController.text}');
         });
+      } else {
+        print('placemarks is emptey');
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -158,28 +230,29 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                 },
               ),
               SizedBox(height: 16.0),
+              // buildLocationField(),
               InkWell(
-      onTap: _selectLocation,
-      child: AbsorbPointer(
-        child: TextFormField(
-          initialValue: _selectedLocation,
-          decoration: InputDecoration(
-            labelText: 'General Location',
-            prefixIcon: Icon(LucideIcons.mapPin),
-            suffixIcon: IconButton(
-              icon: Icon(LucideIcons.locate),
-              onPressed: _getCurrentLocation,
-            ),
-          ),
-          validator: (value) {
-            if (value?.isEmpty ?? true) {
-              return 'Please select a location';
-            }
-            return null;
-          },
-        ),
-      ),
-    ),
+                onTap: _selectLocation,
+                child: AbsorbPointer(
+                  child: TextFormField(
+                    controller: _locationController,
+                    decoration: InputDecoration(
+                      labelText: 'General Location',
+                      prefixIcon: Icon(LucideIcons.mapPin),
+                      suffixIcon: IconButton(
+                        icon: Icon(LucideIcons.locate),
+                        onPressed: _getCurrentLocation,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please select a location';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ),
               SizedBox(height: 24.0),
               ElevatedButton(
                 onPressed: _submitRequest,
@@ -191,4 +264,28 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
       ),
     );
   }
+
+  // Widget buildLocationField() {
+  //   return InkWell(
+  //     onTap: _selectLocation,
+  //     child: AbsorbPointer(
+  //       child: TextFormField(
+  //         initialValue: _locationController,
+  //         decoration: InputDecoration(
+  //           labelText: 'General Location',
+  //           prefixIcon: Icon(LucideIcons.mapPin),
+  //           suffixIcon: IconButton(
+  //             icon: Icon(LucideIcons.locate),
+  //             onPressed: _getCurrentLocation,
+  //           ),
+  //         ),
+  //         validator: (value) {
+  //           if (value?.isEmpty ?? true) {
+  //             return 'Please select a location';
+  //           }
+  //           return null;
+  //         },
+  //       ),
+  //     ),
+  //   );
 }
