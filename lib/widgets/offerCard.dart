@@ -177,18 +177,58 @@ class OfferCard extends StatelessWidget {
     }
   }
 
-  void _openChat(BuildContext context) {
-   Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ChatScreen(
-        chatId: '4Ci9gJ54U3gxBcCqAVgy', // You'll need to fetch this from Firestore
-        currentUserId: offer['requesterId'],
-        otherUserId: offer['offererId'],
-      ),
-    ),
-  );
+  // void _openChat(BuildContext context) {
+  //  Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => ChatScreen(
+  //       chatId: '4Ci9gJ54U3gxBcCqAVgy', // You'll need to fetch this from Firestore
+  //       currentUserId: offer['requesterId'],
+  //       otherUserId: offer['offererId'],
+  //     ),
+  //   ),
+  // );
+  // }
+  void _openChat(BuildContext context) async {
+  try {
+    // Query the chats collection to find the chat document with this offerId
+    final chatSnapshot = await FirebaseFirestore.instance
+        .collection('chats')
+        .where('offerId', isEqualTo: offerId)
+        .limit(1)
+        .get();
+
+    if (chatSnapshot.docs.isNotEmpty) {
+      final chatId = chatSnapshot.docs.first.id;
+      
+      // Navigate to chat screen
+      if (context.mounted) {  // Check if context is still valid
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatScreen(
+              chatId: chatId,
+              currentUserId: offer['requesterId'],
+              otherUserId: offer['offererId'],
+            ),
+          ),
+        );
+      }
+    } else {
+      if (context.mounted) {  // Check if context is still valid
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Chat not found')),
+        );
+      }
+    }
+  } catch (e) {
+    if (context.mounted) {  // Check if context is still valid
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error opening chat: $e')),
+      );
+    }
   }
+}
 }
 String _formatDate(dynamic date) {
   if (date == null) return 'Unknown date';
