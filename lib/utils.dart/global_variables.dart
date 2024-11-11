@@ -12,7 +12,7 @@ const webScreenSize = 600;
 
 List<Widget> homeScreenItems = [
 // MyWidget(),
-ProfileScreen(userId: userId),
+ProfileScreen(),
 LoginScreen(),
 MainDashboard(),
 BookRequestScreen(),

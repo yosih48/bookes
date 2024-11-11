@@ -89,7 +89,25 @@ class AuthMethods {
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
-    //  await _auth.currentUser?.delete();
+
+    try {
+      // Sign out from Firebase
+      await _auth.signOut();
+
+      // Verify the user is signed out by checking the current user
+      if (_auth.currentUser == null) {
+        print("User successfully signed out");
+        
+        // Navigate to the login screen
+        // Navigator.of(context).pushReplacementNamed('/login');
+      } else {
+        print("Sign-out failed. User is still logged in.");
+      }
+    } catch (e) {
+      print("Error signing out: $e");
+      // Handle errors appropriately, perhaps show a message to the user
+    }
+   
+     
   }
 }

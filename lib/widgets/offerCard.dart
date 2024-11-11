@@ -1,3 +1,4 @@
+import 'package:bookes/screens/chatScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -177,8 +178,16 @@ class OfferCard extends StatelessWidget {
   }
 
   void _openChat(BuildContext context) {
-    // Navigate to chat screen
-    // Implement navigation to chat screen
+   Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ChatScreen(
+        chatId: '4Ci9gJ54U3gxBcCqAVgy', // You'll need to fetch this from Firestore
+        currentUserId: offer['requesterId'],
+        otherUserId: offer['offererId'],
+      ),
+    ),
+  );
   }
 }
 String _formatDate(dynamic date) {

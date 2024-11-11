@@ -30,6 +30,7 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
   void initState() {
     super.initState();
     _loadRequests();
+    print(userId);
   }
 
   Future<void> _loadRequests() async {

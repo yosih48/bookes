@@ -3,26 +3,28 @@ import 'package:bookes/widgets/offerCard.dart';
 import 'package:bookes/widgets/requestCard.dart';
 import 'package:bookes/widgets/sliverAppBarDelegate.dart';
 import 'package:bookes/widgets/transactionCard.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final String userId;
+ 
 
-  const ProfileScreen({Key? key, required this.userId}) : super(key: key);
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen>
+
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
+String userId = FirebaseAuth.instance.currentUser!.uid;
   @override
   void initState() {
     super.initState();
-    print(widget.userId);
+    print(userId);
     _tabController = TabController(length: 3, vsync: this);
   }
 
@@ -32,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
-            .doc(widget.userId)
+            .doc(userId)
             .snapshots(),
         builder: (context, userSnapshot) {
           if (!userSnapshot.hasData) {
@@ -56,7 +58,7 @@ return NestedScrollView(
                     TextButton(
                       onPressed: () async {
                         await AuthMethods().signOut();
-             
+             Navigator.of(context).pushReplacementNamed('/login');
                       },
                       child: const Text(
                         'Sign Out',
@@ -85,9 +87,9 @@ return NestedScrollView(
             body: TabBarView(
               controller: _tabController,
               children: [
-                _RequestsTab(userId: widget.userId),
-                _OffersTab(userId: widget.userId),
-                _HistoryTab(userId: widget.userId),
+                _RequestsTab(userId: userId),
+                _OffersTab(userId: userId),
+                _HistoryTab(userId: userId),
               ],
             ),
           );
