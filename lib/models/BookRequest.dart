@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BookRequest {
-  final String? id; 
+  final String? requestId;
   final String userId;
   final String title;
   final String author;
@@ -12,7 +12,7 @@ class BookRequest {
     final String? imageUrl; 
 
   BookRequest({
-     this.id,
+    this.requestId,
     required this.userId,
     required this.title,
     required this.author,
@@ -23,9 +23,36 @@ class BookRequest {
      this.imageUrl,
   });
 
+  BookRequest copyWith({
+    String? requestId,
+    String? userId,
+    String? title,
+    String? author,
+    String? condition,
+    String? location,
+    String? imageUrl,
+    GeoPoint? coordinates,
+    DateTime? createdAt,
+  }) {
+    return BookRequest(
+      requestId: requestId ?? this.requestId,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      author: author ?? this.author,
+      condition: condition ?? this.condition,
+      location: location ?? this.location,
+      imageUrl: imageUrl ?? this.imageUrl,
+      coordinates: coordinates ?? this.coordinates,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+
+
   // Convert to Map for Firestore
   Map<String, dynamic> toMap() {
     return {
+      'requestId': requestId,
       'userId': userId,
       'title': title,
       'author': author,
@@ -39,17 +66,18 @@ class BookRequest {
 
   // Create BookRequest from Firestore document
   factory BookRequest.fromFirestore(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>;
     return BookRequest(
-     id: doc.id, // Use the Firestore document ID
-      userId: data['userId'] ?? '',
-      title: data['title'] ?? '',
-      author: data['author'] ?? '',
-      condition: data['condition'] ?? '',
-      location: data['location'] ?? '',
-        imageUrl: data['imageUrl'],
-      coordinates: data['coordinates'] ?? const GeoPoint(0, 0),
+          requestId: doc.id, // Assign the provided requestId
+      userId: data['userId'],
+      title: data['title'],
+      author: data['author'],
+      condition: data['condition'],
+      location: data['location'],
+      imageUrl: data['imageUrl'],
+      coordinates: data['coordinates'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
     );
   }
+
 }

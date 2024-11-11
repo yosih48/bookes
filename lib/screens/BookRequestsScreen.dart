@@ -1,19 +1,24 @@
 import 'dart:typed_data';
 
 import 'package:bookes/models/BookRequest.dart';
+import 'package:bookes/models/bookOffer.dart';
 import 'package:bookes/resources/BookRequest.dart';
+import 'package:bookes/resources/bookOffer.dart';
 import 'package:bookes/widgets/BookRequestCard.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:image_picker/image_picker.dart';
+
 class BookRequestsScreen extends StatefulWidget {
   @override
   _BookRequestsScreenState createState() => _BookRequestsScreenState();
 }
 
 class _BookRequestsScreenState extends State<BookRequestsScreen> {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
   final BookRequestService _bookRequestService = BookRequestService();
   bool _showNearbyOnly = false;
   bool _isLoading = false;
@@ -157,6 +162,21 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
                                 request.coordinates.longitude,
                               )
                             : null,
+                        onButtonPressed: () {
+                          print('pressed');
+                                  final bookOffer = BookOffer(
+                            requestId: request.requestId!,// Assuming you have this from auth
+                            offererId: userId,
+                            requesterId: request.userId,
+                            status: "pending",
+              
+                            createdAt: DateTime.now(),
+                          );
+
+                          // Save to Firestore/
+                          final createdRequest = BookOfferService()
+                              .createBookOffer(bookOffer);
+                        },
                       );
                     },
                   ),

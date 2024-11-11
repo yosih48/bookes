@@ -6,14 +6,24 @@ class BookRequestService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<BookRequest> createBookRequest(BookRequest request) async {
-    try {
-      final docRef =
-          await _firestore.collection('bookRequests').add(request.toMap());
-        final docSnapshot = await docRef.get();
+
+        try {
+      // Generate a new document reference with an automatic ID
+      final docRef = _firestore.collection('bookRequests').doc();
+
+      // Set the generated ID as the requestId in the BookRequest object
+      request = request.copyWith(requestId: docRef.id);
+
+      // Save the BookRequest to Firestore with the custom ID
+      await docRef.set(request.toMap());
+
+      // Fetch the saved document to return it as a BookRequest object
+      final docSnapshot = await docRef.get();
       return BookRequest.fromFirestore(docSnapshot);
     } catch (e) {
       throw 'Failed to create book request: $e';
     }
+  
   }
 
   Future<List<BookRequest>> getBookRequests() async {
@@ -23,14 +33,13 @@ class BookRequestService {
           .orderBy('createdAt', descending: true)
           .get();
 
-          return querySnapshot.docs
+      return querySnapshot.docs
           .map((doc) => BookRequest.fromFirestore(doc))
           .toList();
     } catch (e) {
       throw 'Failed to fetch book requests: $e';
     }
   }
-
 
   Future<List<BookRequest>> getNearbyRequests(
     GeoPoint center,
@@ -61,5 +70,4 @@ class BookRequestService {
       throw 'Failed to fetch nearby requests: $e';
     }
   }
-
 }

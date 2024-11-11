@@ -3,13 +3,16 @@ import 'package:bookes/screens/afterLogin.dart';
 import 'package:bookes/screens/apiBookes.dart';
 import 'package:bookes/screens/bookesRequest.dart';
 import 'package:bookes/screens/login.dart';
+import 'package:bookes/screens/profile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-
+  String userId = FirebaseAuth.instance.currentUser!.uid;
 const webScreenSize = 600;
 
 List<Widget> homeScreenItems = [
-MyWidget(),
+// MyWidget(),
+ProfileScreen(userId: userId),
 LoginScreen(),
 MainDashboard(),
 BookRequestScreen(),
