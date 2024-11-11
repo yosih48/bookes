@@ -31,7 +31,7 @@ class TransactionCard extends StatelessWidget {
                 }
                 final userData = snapshot.data!.data() as Map<String, dynamic>;
                 return Text(
-                  'Borrowed from ${userData['displayName']}',
+                  'Borrowed from ${userData['username']}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 );
               },

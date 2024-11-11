@@ -37,7 +37,7 @@ class OfferCard extends StatelessWidget {
                   backgroundImage: NetworkImage(userData['photoURL'] ?? ''),
                 ),
                 title: Text(
-                  userData['displayName'] ?? 'Unknown User',
+                  userData['username'] ?? 'Unknown User',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Row(
