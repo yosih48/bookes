@@ -1,3 +1,4 @@
+import 'package:bookes/widgets/ratingDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -39,7 +40,7 @@ class TransactionCard extends StatelessWidget {
             subtitle: Text(_formatDate(transaction['startDate'])),
             trailing: _buildStatusChip(transaction['status']),
           ),
-          if (transaction['status'] == 'ongoing')
+          if (transaction['status'] == 'pending_meetup')
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -130,8 +131,14 @@ class TransactionCard extends StatelessWidget {
     });
   }
 
-  void _rateTransaction(BuildContext context) {
-    // Implement rating dialog/screen
+void _rateTransaction(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => RatingDialog(
+        transactionId: transactionId,
+        lenderId: transaction['lenderId'],
+      ),
+    );
   }
 }
 

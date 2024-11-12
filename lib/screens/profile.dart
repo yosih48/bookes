@@ -1,4 +1,5 @@
 import 'package:bookes/resources/auth.dart';
+import 'package:bookes/widgets/activeChatsTab.dart';
 import 'package:bookes/widgets/offerCard.dart';
 import 'package:bookes/widgets/requestCard.dart';
 import 'package:bookes/widgets/sliverAppBarDelegate.dart';
@@ -25,7 +26,7 @@ String userId = FirebaseAuth.instance.currentUser!.uid;
   void initState() {
     super.initState();
     print(userId);
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -77,6 +78,7 @@ return NestedScrollView(
                         Tab(text: 'MY REQUESTS'),
                         Tab(text: 'OFFERS'),
                         Tab(text: 'HISTORY'),
+                        Tab(text: 'CHATS'),
                       ],
                     ),
                   ),
@@ -90,6 +92,7 @@ return NestedScrollView(
                 _RequestsTab(userId: userId),
                 _OffersTab(userId: userId),
                 _HistoryTab(userId: userId),
+                _ActiveChatsTab(userId: userId),
               ],
             ),
           );
@@ -127,16 +130,55 @@ return NestedScrollView(
             ),
           ),
           const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.star, color: Colors.yellow[700], size: 20),
-              const SizedBox(width: 4),
-              Text(
-                '${userData['rating']?.toStringAsFixed(1) ?? '0.0'} (${userData['totalRatings'] ?? '0'})',
-                style: const TextStyle(color: Colors.white),
-              ),
-            ],
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     Icon(Icons.star, color: Colors.yellow[700], size: 20),
+          //     const SizedBox(width: 4),
+          //     Text(
+          //       '${userData['rating']?.toStringAsFixed(1) ?? '0.0'} (${userData['totalRatings'] ?? '0'})',
+          //       style: const TextStyle(color: Colors.white),
+          //     ),
+          //   ],
+          // ),
+               Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: List.generate(5, (index) {
+                    final rating = userData['rating'] ?? 0.0;
+                    return Icon(
+                      index < rating ? Icons.star : Icons.star_border,
+                      color: Colors.yellow[700],
+                      size: 20,
+                    );
+                  }),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${userData['rating']?.toStringAsFixed(1) ?? '0.0'}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '(${userData['totalRatings'] ?? '0'} ratings)',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -245,6 +287,88 @@ class _HistoryTab extends StatelessWidget {
             return TransactionCard(
               transaction: transaction,
               transactionId: transactions[index].id,
+            );
+          },
+        );
+      },
+    );
+  }
+}
+class _ActiveChatsTab extends StatelessWidget {
+  final String userId;
+
+  const _ActiveChatsTab({
+    Key? key,
+    required this.userId,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('chats')
+          .where('participants', arrayContains: userId)
+          .orderBy('lastMessageTimestamp', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final chats = snapshot.data!.docs;
+
+        if (chats.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'No active chats',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: chats.length,
+          itemBuilder: (context, index) {
+            final chat = chats[index].data() as Map<String, dynamic>;
+            final chatId = chats[index].id;
+            List<String> participants = [];
+            if (chat['participants'] != null) {
+              participants = (chat['participants'] as List)
+                  .map((item) => item.toString())
+                  .toList();
+            }
+
+            // Find the other user's ID safely
+            String? otherUserId;
+            try {
+              otherUserId = participants.firstWhere(
+                (id) => id != userId,
+                orElse: () => '',
+              );
+            } catch (e) {
+              debugPrint('Error finding other user: $e');
+            }
+
+            // Skip this chat item if we can't find the other user
+            if (otherUserId == null || otherUserId.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
+            return ChatListItem(
+              chatId: chatId,
+              otherUserId: otherUserId,
+              lastMessage: chat['lastMessage'] ?? '',
+              lastMessageTimestamp: chat['lastMessageTimestamp'],
+              currentUserId: userId,
+              offerId: chat['offerId'],
             );
           },
         );

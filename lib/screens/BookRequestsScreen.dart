@@ -155,6 +155,7 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
                       print(request);
                       return BookRequestCard(
                         request: request,
+                         currentUserId: userId, 
                         distance: _showNearbyOnly && _currentPosition != null
                             ? _calculateDistance(
                                 _currentPosition!.latitude,
