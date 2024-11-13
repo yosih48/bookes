@@ -1,5 +1,6 @@
 import 'package:bookes/resources/auth.dart';
 import 'package:bookes/widgets/activeChatsTab.dart';
+import 'package:bookes/widgets/combinedOffersTab.dart';
 import 'package:bookes/widgets/offerCard.dart';
 import 'package:bookes/widgets/requestCard.dart';
 import 'package:bookes/widgets/sliverAppBarDelegate.dart';
@@ -90,7 +91,7 @@ return NestedScrollView(
               controller: _tabController,
               children: [
                 _RequestsTab(userId: userId),
-                _OffersTab(userId: userId),
+                 CombinedOffersTab(userId: userId),
                 _HistoryTab(userId: userId),
                 _ActiveChatsTab(userId: userId),
               ],
@@ -222,10 +223,10 @@ class _RequestsTab extends StatelessWidget {
   }
 }
 
-class _OffersTab extends StatelessWidget {
+class OffersTab extends StatelessWidget {
   final String userId;
 
-  const _OffersTab({Key? key, required this.userId}) : super(key: key);
+  const OffersTab({Key? key, required this.userId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -376,3 +377,118 @@ class _ActiveChatsTab extends StatelessWidget {
     );
   }
 }
+class MyOffersTab extends StatelessWidget {
+  final String userId;
+
+  const MyOffersTab({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('bookOffers')
+          .where('offererId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final offers = snapshot.data!.docs;
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: offers.length,
+          itemBuilder: (context, index) {
+            final offer = offers[index].data() as Map<String, dynamic>;
+            return OfferCard(
+              offer: offer,
+              offerId: offers[index].id,
+            );
+          },
+        );
+      },
+    );
+  }
+}
+// class _CombinedOffersTab extends StatefulWidget {
+//   final String userId;
+
+//   const _CombinedOffersTab({Key? key, required this.userId}) : super(key: key);
+
+//   @override
+//   State<_CombinedOffersTab> createState() => _CombinedOffersTabState();
+// }
+
+// class _CombinedOffersTabState extends State<_CombinedOffersTab> {
+//   bool showReceivedOffers = true;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         Container(
+//           margin: const EdgeInsets.all(16),
+//           decoration: BoxDecoration(
+//             color: Theme.of(context).primaryColor.withOpacity(0.1),
+//             borderRadius: BorderRadius.circular(12),
+//           ),
+//           child: Row(
+//             children: [
+//               Expanded(
+//                 child: GestureDetector(
+//                   onTap: () => setState(() => showReceivedOffers = true),
+//                   child: Container(
+//                     padding: const EdgeInsets.symmetric(vertical: 12),
+//                     decoration: BoxDecoration(
+//                       color: showReceivedOffers
+//                           ? Theme.of(context).primaryColor
+//                           : Colors.transparent,
+//                       borderRadius: BorderRadius.circular(12),
+//                     ),
+//                     child: Text(
+//                       'Received',
+//                       textAlign: TextAlign.center,
+//                       style: TextStyle(
+//                         color: showReceivedOffers ? Colors.white : Colors.grey,
+//                         fontWeight: FontWeight.bold,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//               Expanded(
+//                 child: GestureDetector(
+//                   onTap: () => setState(() => showReceivedOffers = false),
+//                   child: Container(
+//                     padding: const EdgeInsets.symmetric(vertical: 12),
+//                     decoration: BoxDecoration(
+//                       color: !showReceivedOffers
+//                           ? Theme.of(context).primaryColor
+//                           : Colors.transparent,
+//                       borderRadius: BorderRadius.circular(12),
+//                     ),
+//                     child: Text(
+//                       'My Offers',
+//                       textAlign: TextAlign.center,
+//                       style: TextStyle(
+//                         color: !showReceivedOffers ? Colors.white : Colors.grey,
+//                         fontWeight: FontWeight.bold,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//         Expanded(
+//           child: showReceivedOffers
+//               ? _OffersTab(userId: widget.userId)
+//               : _MyOffersTab(userId: widget.userId),
+//         ),
+//       ],
+//     );
+//   }
+// }
