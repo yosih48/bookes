@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:bookes/widgets/ratingDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,11 +8,13 @@ import 'package:intl/intl.dart';
 class TransactionCard extends StatelessWidget {
   final Map<String, dynamic> transaction;
   final String transactionId;
+final bool isLenderView;
 
   const TransactionCard({
     Key? key,
     required this.transaction,
-    required this.transactionId,
+    required this.transactionId, 
+    required this.isLenderView,
   }) : super(key: key);
 
   @override
@@ -24,17 +28,23 @@ class TransactionCard extends StatelessWidget {
             title: FutureBuilder<DocumentSnapshot>(
               future: FirebaseFirestore.instance
                   .collection('users')
-                  .doc(transaction['lenderId'])
+                  .doc(isLenderView ?transaction['borrowerId']: transaction['lenderId'])
                   .get(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Text('Loading...');
                 }
                 final userData = snapshot.data!.data() as Map<String, dynamic>;
-                return Text(
+                return 
+                    !isLenderView?
+                Text(
+              
                   'Borrowed from ${userData['username']}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
-                );
+                ): Text(
+                        'Borrowed to ${userData['username']}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ) ;
               },
             ),
             subtitle: Text(_formatDate(transaction['startDate'])),
@@ -53,6 +63,7 @@ class TransactionCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
+                  if(isLenderView)
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () => _markAsReturned(context),

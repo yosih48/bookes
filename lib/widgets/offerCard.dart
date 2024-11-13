@@ -5,11 +5,12 @@ import 'package:intl/intl.dart';
 class OfferCard extends StatelessWidget {
   final Map<String, dynamic> offer;
   final String offerId;
-
+  final bool isLenderView; 
   const OfferCard({
     Key? key,
     required this.offer,
     required this.offerId,
+       this.isLenderView = false, 
   }) : super(key: key);
 
   @override
@@ -17,7 +18,7 @@ class OfferCard extends StatelessWidget {
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance
           .collection('users')
-          .doc(offer['offererId'])
+          .doc(isLenderView? offer['requesterId']: offer['offererId'])
           .get(),
       builder: (context, userSnapshot) {
         if (!userSnapshot.hasData) {
@@ -71,7 +72,7 @@ class OfferCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (offer['status'] == 'pending')
+              if (offer['status'] == 'pending' && !isLenderView)
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(

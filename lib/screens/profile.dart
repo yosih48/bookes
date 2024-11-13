@@ -1,5 +1,6 @@
 import 'package:bookes/resources/auth.dart';
 import 'package:bookes/widgets/activeChatsTab.dart';
+import 'package:bookes/widgets/combinedHistoryTab.dart';
 import 'package:bookes/widgets/combinedOffersTab.dart';
 import 'package:bookes/widgets/offerCard.dart';
 import 'package:bookes/widgets/requestCard.dart';
@@ -10,8 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileScreen extends StatefulWidget {
- 
-
   const ProfileScreen({Key? key}) : super(key: key);
 
   @override
@@ -19,10 +18,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen>
-
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-String userId = FirebaseAuth.instance.currentUser!.uid;
+  String userId = FirebaseAuth.instance.currentUser!.uid;
   @override
   void initState() {
     super.initState();
@@ -40,13 +38,13 @@ String userId = FirebaseAuth.instance.currentUser!.uid;
             .snapshots(),
         builder: (context, userSnapshot) {
           if (!userSnapshot.hasData) {
-             print('!userSnapshot.hasData');
+            print('!userSnapshot.hasData');
             return const Center(child: CircularProgressIndicator());
           }
 
           final userData = userSnapshot.data!.data() as Map<String, dynamic>;
 
-return NestedScrollView(
+          return NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
                 SliverAppBar(
@@ -56,11 +54,11 @@ return NestedScrollView(
                   flexibleSpace: FlexibleSpaceBar(
                     background: _buildProfileHeader(userData),
                   ),
-                        actions: [
+                  actions: [
                     TextButton(
                       onPressed: () async {
                         await AuthMethods().signOut();
-             Navigator.of(context).pushReplacementNamed('/login');
+                        Navigator.of(context).pushReplacementNamed('/login');
                       },
                       child: const Text(
                         'Sign Out',
@@ -91,8 +89,8 @@ return NestedScrollView(
               controller: _tabController,
               children: [
                 _RequestsTab(userId: userId),
-                 CombinedOffersTab(userId: userId),
-                _HistoryTab(userId: userId),
+                CombinedOffersTab(userId: userId),
+                CombinedHistoryTab(userId: userId),
                 _ActiveChatsTab(userId: userId),
               ],
             ),
@@ -142,7 +140,7 @@ return NestedScrollView(
           //     ),
           //   ],
           // ),
-               Container(
+          Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.1),
@@ -251,6 +249,7 @@ class OffersTab extends StatelessWidget {
             return OfferCard(
               offer: offer,
               offerId: offers[index].id,
+               isLenderView: false,
             );
           },
         );
@@ -259,13 +258,14 @@ class OffersTab extends StatelessWidget {
   }
 }
 
-class _HistoryTab extends StatelessWidget {
+class HistoryTab extends StatelessWidget {
   final String userId;
 
-  const _HistoryTab({Key? key, required this.userId}) : super(key: key);
+  const HistoryTab({Key? key, required this.userId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+   
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('bookTransactions')
@@ -288,6 +288,7 @@ class _HistoryTab extends StatelessWidget {
             return TransactionCard(
               transaction: transaction,
               transactionId: transactions[index].id,
+              isLenderView: false,
             );
           },
         );
@@ -295,6 +296,7 @@ class _HistoryTab extends StatelessWidget {
     );
   }
 }
+
 class _ActiveChatsTab extends StatelessWidget {
   final String userId;
 
@@ -377,6 +379,7 @@ class _ActiveChatsTab extends StatelessWidget {
     );
   }
 }
+
 class MyOffersTab extends StatelessWidget {
   final String userId;
 
@@ -405,6 +408,74 @@ class MyOffersTab extends StatelessWidget {
             return OfferCard(
               offer: offer,
               offerId: offers[index].id,
+                isLenderView: true,
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class MyHistoryTab extends StatelessWidget {
+  final String userId;
+
+  const MyHistoryTab({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('bookTransactions')
+          .where('lenderId',
+              isEqualTo: userId) // Changed from borrowerId to lenderId
+          .orderBy('startDate', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final transactions = snapshot.data!.docs;
+
+        if (transactions.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.menu_book_outlined, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'No lending history yet',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Books you lend will appear here',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: transactions.length,
+          itemBuilder: (context, index) {
+            final transaction =
+                transactions[index].data() as Map<String, dynamic>;
+            return TransactionCard(
+              transaction: transaction,
+              transactionId: transactions[index].id,
+                   isLenderView: true,
             );
           },
         );
