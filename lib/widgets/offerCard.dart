@@ -14,20 +14,29 @@ class OfferCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance
-          .collection('users')
-          .doc(isLenderView? offer['requesterId']: offer['offererId'])
-          .get(),
-      builder: (context, userSnapshot) {
-        if (!userSnapshot.hasData) {
+Widget build(BuildContext context) {
+    return FutureBuilder<List<DocumentSnapshot>>(
+      future: Future.wait([
+        // Fetch user data
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(isLenderView ? offer['requesterId'] : offer['offererId'])
+            .get(),
+        // Fetch book request data
+        FirebaseFirestore.instance
+            .collection('bookRequests')
+            .doc(offer['requestId'])
+            .get(),
+      ]),
+      builder: (context, AsyncSnapshot<List<DocumentSnapshot>> snapshots) {
+        if (!snapshots.hasData) {
           return const Card(
             child: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final userData = userSnapshot.data!.data() as Map<String, dynamic>;
+        final userData = snapshots.data![0].data() as Map<String, dynamic>;
+        final bookRequest = snapshots.data![1].data() as Map<String, dynamic>;
 
         return Card(
           elevation: 2,
@@ -52,21 +61,68 @@ class OfferCard extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Offered ${_formatDate(offer['createdAt'])}',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
+                    // Book Details Section
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Book Title Section
+                          Row(
+                            children: [
+                              const Icon(Icons.book,
+                                  size: 16, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  bookRequest['title'] ?? 'Unknown Book',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Offered ${_formatDate(offer['createdAt'])}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                          if (offer['message']?.isNotEmpty ?? false) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              offer['message'],
+                              style:
+                                  const TextStyle(fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                    if (offer['message']?.isNotEmpty ?? false) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        offer['message'],
-                        style: const TextStyle(fontStyle: FontStyle.italic),
+                    // Chat Button (if status is accepted)
+                    if (offer['status'] == 'accepted') ...[
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        height: 36, // Fixed height for the button
+                        child: ElevatedButton.icon(
+                          onPressed: () => _openChat(context),
+                          icon: const Icon(Icons.chat, size: 18),
+                          label: const Text('Open Chat'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 0,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ],
@@ -91,15 +147,6 @@ class OfferCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),
-                ),
-              if (offer['status'] == 'accepted')
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: ElevatedButton.icon(
-                    onPressed: () => _openChat(context),
-                    icon: const Icon(Icons.chat),
-                    label: const Text('Open Chat'),
                   ),
                 ),
             ],
