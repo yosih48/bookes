@@ -137,25 +137,32 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _requests.isEmpty
-              ? Center(
-                  child: Text(
-                    _showNearbyOnly
-                        ? 'No nearby book requests found'
-                        : 'No book requests found',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                )
-              : RefreshIndicator(
+          : Builder(
+              builder: (context) {
+                // Filter active requests
+                final activeRequests =
+                    _requests.where((req) => req.status == 'Active').toList();
+
+                if (activeRequests.isEmpty) {
+                  return Center(
+                    child: Text(
+                      _showNearbyOnly
+                          ? 'No nearby active book requests found'
+                          : 'No active book requests found',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  );
+                }
+
+                return RefreshIndicator(
                   onRefresh: _loadRequests,
                   child: ListView.builder(
-                    itemCount: _requests.length,
+                    itemCount: activeRequests.length,
                     itemBuilder: (context, index) {
-                      final request = _requests[index];
-                      print(request);
+                      final request = activeRequests[index];
                       return BookRequestCard(
                         request: request,
-                         currentUserId: userId, 
+                        currentUserId: userId,
                         distance: _showNearbyOnly && _currentPosition != null
                             ? _calculateDistance(
                                 _currentPosition!.latitude,
@@ -182,7 +189,8 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
                       );
                     },
                   ),
-                ),
+                );
+  },),
     );
   }
 

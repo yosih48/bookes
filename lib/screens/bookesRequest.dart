@@ -73,6 +73,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                   _currentPosition!.latitude, _currentPosition!.longitude)
               : const GeoPoint(0, 0),
           createdAt: DateTime.now(),
+          status: 'Active'
         );
 
         // Save to Firestore

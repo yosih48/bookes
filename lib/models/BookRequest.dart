@@ -10,6 +10,7 @@ class BookRequest {
   final GeoPoint coordinates; // For storing latitude and longitude
   final DateTime createdAt;
     final String? imageUrl; 
+    final String status;
 
   BookRequest({
     this.requestId,
@@ -21,6 +22,7 @@ class BookRequest {
     required this.coordinates,
     required this.createdAt,
      this.imageUrl,
+         required this.status,
   });
 
   BookRequest copyWith({
@@ -33,6 +35,7 @@ class BookRequest {
     String? imageUrl,
     GeoPoint? coordinates,
     DateTime? createdAt,
+    String? status,
   }) {
     return BookRequest(
       requestId: requestId ?? this.requestId,
@@ -44,6 +47,7 @@ class BookRequest {
       imageUrl: imageUrl ?? this.imageUrl,
       coordinates: coordinates ?? this.coordinates,
       createdAt: createdAt ?? this.createdAt,
+      status: status ?? this.status,
     );
   }
 
@@ -60,6 +64,7 @@ class BookRequest {
       'location': location,
       'coordinates': coordinates,
       'createdAt': createdAt,
+      'status': status,
         'imageUrl': imageUrl,
     };
   }
@@ -75,6 +80,7 @@ class BookRequest {
       condition: data['condition'],
       location: data['location'],
       imageUrl: data['imageUrl'],
+      status: data['status'],
       coordinates: data['coordinates'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
     );

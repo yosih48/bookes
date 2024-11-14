@@ -78,7 +78,7 @@ class RequestCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (request['status'] == 'active')
+              if (request['status'] == 'Active')
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
@@ -113,7 +113,7 @@ class RequestCard extends StatelessWidget {
     String label;
 
     switch (status) {
-      case 'active':
+      case 'Active':
         color = Colors.blue;
         label = 'Active';
         break;
@@ -122,7 +122,7 @@ class RequestCard extends StatelessWidget {
         label = 'Fulfilled';
         break;
       case 'cancelled':
-        color = Colors.grey;
+        color = Colors.red;
         label = 'Cancelled';
         break;
       default:

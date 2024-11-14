@@ -21,7 +21,7 @@ class BookRequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (request.userId == currentUserId) {
+    if (request.userId == currentUserId  || request.status != 'Active') {
       return const SizedBox
           .shrink(); // Return empty widget if user is requester
     }
@@ -31,6 +31,7 @@ class BookRequestCard extends StatelessWidget {
           .collection('bookOffers')
           .where('requestId', isEqualTo: request.requestId)
           .where('offererId', isEqualTo: currentUserId)
+          
        
           .snapshots(),
       builder: (context, snapshot) {
@@ -40,6 +41,7 @@ class BookRequestCard extends StatelessWidget {
           hasAlreadyOffered = snapshot.data!.docs.isNotEmpty;
         }
         return 
+   
 Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
