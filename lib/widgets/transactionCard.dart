@@ -42,7 +42,7 @@ final bool isLenderView;
                   'Borrowed from ${userData['username']}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ): Text(
-                        'Borrowed to ${userData['username']}',
+                        'Lent to ${userData['username']}',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ) ;
               },
