@@ -1,6 +1,7 @@
 import 'package:bookes/resources/auth.dart';
 import 'package:bookes/widgets/offerCard.dart';
 import 'package:bookes/widgets/requestCard.dart';
+import 'package:bookes/widgets/transactionCard.dart';
 import 'package:flutter/material.dart';
 
 class ConfirmDialog extends StatelessWidget {
@@ -199,7 +200,7 @@ void showAcceptOfferConfirmation(
   final result = await ConfirmDialog.show(
     context: context,
     title: response == 'accepted' ? 'Accept Offer' : 'Cancel offer',
-    message: response == 'accepted' ?acceptMessage : declineMessage,
+    message: response == 'accepted' ? acceptMessage : declineMessage,
     confirmText: response == 'accepted' ? 'Accept' : 'Decline',
     icon: response == 'accepted'
         ? Icons.check_circle_outline
@@ -209,5 +210,36 @@ void showAcceptOfferConfirmation(
 
   if (result == true) {
     OfferRequestService.respondToOffer(context, response, offerId, offer);
+  }
+}
+
+void takenConfirmation(context, transactionId) async {
+  final result = await ConfirmDialog.show(
+    context: context,
+    title: 'Confirm Lent',
+    message:
+        'Would you like to accept this book offer? You will be able to chat with the lender after accepting.',
+    confirmText: 'Confirm',
+    icon: Icons.check_circle_outline,
+    confirmColor: Colors.green,
+  );
+
+  if (result == true) {
+    TransactionRequestService.markAsTaken(context, transactionId);
+  }
+}
+void returnConfirmation(context, transactionId) async {
+  final result = await ConfirmDialog.show(
+    context: context,
+    title: 'Confirm return',
+    message:
+        'Would you like to accept this book offer? You will be able to chat with the lender after accepting.',
+    confirmText: 'Confirm',
+    icon: Icons.check_circle_outline,
+    confirmColor: Colors.green,
+  );
+
+  if (result == true) {
+    TransactionRequestService.markAsReturned(context, transactionId);
   }
 }

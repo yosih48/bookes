@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:bookes/widgets/confirmDialog.dart';
 import 'package:bookes/widgets/ratingDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -97,7 +98,7 @@ final bool isLenderView;
                 if(isLenderView)
                 Expanded(
                           child: OutlinedButton.icon(
-                    onPressed: () => _markAsTaken(context),
+                    onPressed: () => takenConfirmation(context,transactionId),
                     icon: const Icon(Icons.check),
                     label: const Text('Mark as Taken'),
                   ),
@@ -122,7 +123,7 @@ final bool isLenderView;
                 if(isLenderView)
                 Expanded(
                     child: OutlinedButton.icon(
-                    onPressed: () => _markAsReturned(context),
+                    onPressed: () =>  returnConfirmation(context, transactionId),
                     icon: const Icon(Icons.check),
                     label: const Text('Mark as Returned'),
                   ),
@@ -188,24 +189,10 @@ final bool isLenderView;
     // Navigate to chat screen using transaction['chatId']
   }
 
-  Future<void> _markAsReturned(BuildContext context) async {
-    await FirebaseFirestore.instance
-        .collection('bookTransactions')
-        .doc(transactionId)
-        .update({
-      'status': 'completed',
-      'actualReturnDate': FieldValue.serverTimestamp(),
-    });
-  }
-  Future<void> _markAsTaken(BuildContext context) async {
-    await FirebaseFirestore.instance
-        .collection('bookTransactions')
-        .doc(transactionId)
-        .update({
-      'status': 'ongoing',
-      'actualReturnDate': FieldValue.serverTimestamp(),
-    });
-  }
+
+
+
+
 
 void _rateTransaction(BuildContext context) {
     showDialog(
@@ -226,4 +213,25 @@ String _formatDate(dynamic date) {
     return DateFormat('MMM d, yyyy').format(date.toDate());
   }
   return 'Invalid date';
+}
+class TransactionRequestService {
+  static Future<void> markAsTaken(BuildContext context, transactionId) async {
+    await FirebaseFirestore.instance
+        .collection('bookTransactions')
+        .doc(transactionId)
+        .update({
+      'status': 'ongoing',
+      'actualReturnDate': FieldValue.serverTimestamp(),
+    });
+  }
+static   Future<void> markAsReturned(BuildContext context, transactionId) async {
+    await FirebaseFirestore.instance
+        .collection('bookTransactions')
+        .doc(transactionId)
+        .update({
+      'status': 'completed',
+      'actualReturnDate': FieldValue.serverTimestamp(),
+    });
+  }
+
 }
