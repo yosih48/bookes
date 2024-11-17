@@ -1,4 +1,5 @@
 import 'package:bookes/screens/profile.dart';
+import 'package:bookes/widgets/offersTab.dart';
 import 'package:flutter/material.dart';
 
 class CombinedOffersTab extends StatefulWidget {

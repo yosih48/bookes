@@ -1,20 +1,22 @@
 import 'package:bookes/screens/chatScreen.dart';
+import 'package:bookes/widgets/confirmDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+
 class OfferCard extends StatelessWidget {
   final Map<String, dynamic> offer;
   final String offerId;
-  final bool isLenderView; 
+  final bool isLenderView;
   const OfferCard({
     Key? key,
     required this.offer,
     required this.offerId,
-       this.isLenderView = false, 
+    this.isLenderView = false,
   }) : super(key: key);
 
   @override
-Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return FutureBuilder<List<DocumentSnapshot>>(
       future: Future.wait([
         // Fetch user data
@@ -135,14 +137,16 @@ Widget build(BuildContext context) {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () => _respondToOffer(context, 'declined'),
+                          onPressed: () =>
+                              showAcceptOfferConfirmation(context, 'declined', offerId, offer),
                           child: const Text('Decline'),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => _respondToOffer(context, 'accepted'),
+                          onPressed: () =>
+                              showAcceptOfferConfirmation(context, 'accepted', offerId, offer),
                           child: const Text('Accept'),
                         ),
                       ),
@@ -192,7 +196,65 @@ Widget build(BuildContext context) {
     );
   }
 
-  Future<void> _respondToOffer(BuildContext context, String response) async {
+
+
+
+  void _openChat(BuildContext context) async {
+    try {
+      // Query the chats collection to find the chat document with this offerId
+      final chatSnapshot = await FirebaseFirestore.instance
+          .collection('chats')
+          .where('offerId', isEqualTo: offerId)
+          .limit(1)
+          .get();
+
+      if (chatSnapshot.docs.isNotEmpty) {
+        final chatId = chatSnapshot.docs.first.id;
+
+        // Navigate to chat screen
+        if (context.mounted) {
+          // Check if context is still valid
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                chatId: chatId,
+                currentUserId: offer['requesterId'],
+                otherUserId: offer['offererId'],
+              ),
+            ),
+          );
+        }
+      } else {
+        if (context.mounted) {
+          // Check if context is still valid
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Chat not found')),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        // Check if context is still valid
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error opening chat: $e')),
+        );
+      }
+    }
+  }
+}
+
+String _formatDate(dynamic date) {
+  if (date == null) return 'Unknown date';
+  if (date is Timestamp) {
+    return DateFormat('MMM d, yyyy').format(date.toDate());
+  }
+  return 'Invalid date';
+}
+
+class OfferRequestService {
+  static Future<void> respondToOffer(
+      BuildContext context, String response, offerId, offer) async {
     // Update offer status
     await FirebaseFirestore.instance
         .collection('bookOffers')
@@ -224,64 +286,4 @@ Widget build(BuildContext context) {
       });
     }
   }
-
-  // void _openChat(BuildContext context) {
-  //  Navigator.push(
-  //   context,
-  //   MaterialPageRoute(
-  //     builder: (context) => ChatScreen(
-  //       chatId: '4Ci9gJ54U3gxBcCqAVgy', // You'll need to fetch this from Firestore
-  //       currentUserId: offer['requesterId'],
-  //       otherUserId: offer['offererId'],
-  //     ),
-  //   ),
-  // );
-  // }
-  void _openChat(BuildContext context) async {
-  try {
-    // Query the chats collection to find the chat document with this offerId
-    final chatSnapshot = await FirebaseFirestore.instance
-        .collection('chats')
-        .where('offerId', isEqualTo: offerId)
-        .limit(1)
-        .get();
-
-    if (chatSnapshot.docs.isNotEmpty) {
-      final chatId = chatSnapshot.docs.first.id;
-      
-      // Navigate to chat screen
-      if (context.mounted) {  // Check if context is still valid
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatScreen(
-              chatId: chatId,
-              currentUserId: offer['requesterId'],
-              otherUserId: offer['offererId'],
-            ),
-          ),
-        );
-      }
-    } else {
-      if (context.mounted) {  // Check if context is still valid
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Chat not found')),
-        );
-      }
-    }
-  } catch (e) {
-    if (context.mounted) {  // Check if context is still valid
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error opening chat: $e')),
-      );
-    }
-  }
-}
-}
-String _formatDate(dynamic date) {
-  if (date == null) return 'Unknown date';
-  if (date is Timestamp) {
-    return DateFormat('MMM d, yyyy').format(date.toDate());
-  }
-  return 'Invalid date';
 }

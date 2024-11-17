@@ -1,3 +1,7 @@
+import 'package:bookes/utils.dart/global_variables.dart';
+import 'package:bookes/widgets/confirmDialog.dart';
+import 'package:bookes/widgets/offersTab.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +18,7 @@ class RequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('bookOffers')
@@ -85,19 +90,19 @@ class RequestCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () => _cancelRequest(context),
+                          onPressed: () => showCancelRequestConfirmation(context, requestId),
                           child: const Text('Cancel Request'),
                         ),
                       ),
-                      if (offersCount > 0) ...[
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () => _viewOffers(context),
-                            child: const Text('View Offers'),
-                          ),
-                        ),
-                      ],
+                      // if (offersCount > 0) ...[
+                      //   const SizedBox(width: 8),
+                      //   Expanded(
+                      //     child: ElevatedButton(
+                      //       onPressed: () => _viewOffers(context),
+                      //       child: const Text('View Offers'),
+                      //     ),
+                      //   ),
+                      // ],
                     ],
                   ),
                 ),
@@ -144,17 +149,14 @@ class RequestCard extends StatelessWidget {
     );
   }
 
-  void _cancelRequest(BuildContext context) {
-    // Implement request cancellation
-    FirebaseFirestore.instance
-        .collection('bookRequests')
-        .doc(requestId)
-        .update({'status': 'cancelled'});
-  }
 
   void _viewOffers(BuildContext context) {
-    // Navigate to offers view
-    // Implement navigation to a detailed offers view
+    // Navigator.of(context).push(
+    //   MaterialPageRoute(
+    //     builder: (context) =>
+    //         OffersTab(userId: userId), // Pass the userId if required
+    //   ),
+    // );
   }
 }
 String _formatDate(dynamic date) {
@@ -163,4 +165,14 @@ String _formatDate(dynamic date) {
     return DateFormat('MMM d, yyyy').format(date.toDate());
   }
   return 'Invalid date';
+}
+class RequestService{
+
+   static Future<void> cancelRequest (BuildContext context, requestId) async {
+    // Implement request cancellation
+    FirebaseFirestore.instance
+        .collection('bookRequests')
+        .doc(requestId)
+        .update({'status': 'cancelled'});
+  }
 }
