@@ -9,6 +9,7 @@ class User {
   final double? rating; // Average rating
   final int? totalRatings;
   final int? booksShared;
+   final  String? fcmToken;
 
   const User({
     required this.username,
@@ -17,6 +18,7 @@ class User {
     this.rating,
     this.totalRatings,
     this.booksShared,
+      this.fcmToken,
   });
 
   static User fromSnap(DocumentSnapshot snap) {
@@ -29,7 +31,7 @@ class User {
       email: snapshot["email"],
         rating: snapshot["rating"]?.toDouble(), // Convert to double
         booksShared: snapshot["booksShared"]?.toDouble(), // Convert to double
-        
+           fcmToken: snapshot["fcmToken"],
       totalRatings: snapshot["totalRatings"],
     );
   }
@@ -40,6 +42,7 @@ class User {
         "email": email,
                 "rating": rating, // Store the double value
                 "booksShared": booksShared, // Store the double value
-        "totalRatings": totalRatings
+        "totalRatings": totalRatings,
+           "fcmToken": fcmToken,
       };
 }

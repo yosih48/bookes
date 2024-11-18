@@ -19,6 +19,26 @@ class BookOffer {
     // this.responseAt,
   });
 
+  Map<String, dynamic> toMap() {
+    return {
+      'requestId': requestId,
+      'offererId': offererId,
+      'requesterId': requesterId,
+      'status': status,
+      'createdAt': createdAt,
+    };
+  }
+  factory BookOffer.fromMap(Map<String, dynamic> map) {
+    return BookOffer(
+      requestId: map['requestId'] as String,
+      offererId: map['offererId'] as String,
+      requesterId: map['requesterId'] as String,
+      status: map['status'] as String,
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
+    );
+  }
+  
+
   // Factory method to create an instance from JSON
   factory BookOffer.fromJson(Map<String, dynamic> json) {
     return BookOffer(
@@ -33,6 +53,7 @@ class BookOffer {
       //     : null,
     );
   }
+  
 
   // Method to convert the instance to JSON
   Map<String, dynamic> toJson() {

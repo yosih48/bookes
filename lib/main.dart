@@ -1,17 +1,38 @@
+import 'package:bookes/resources/NotificationService.dart';
 import 'package:bookes/responsive/mobile_screen_layout.dart';
 import 'package:bookes/responsive/rsponsive_layout_screen.dart';
 import 'package:bookes/responsive/web_screen_layout.dart';
 import 'package:bookes/screens/login.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+
+
+
+
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('Handling a background message: ${message.messageId}');
+}
+
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
+
+ 
+
+  final notificationService = NotificationService();
+  await notificationService.initialize();
   runApp(const MyApp());
 }
 

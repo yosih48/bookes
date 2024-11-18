@@ -1,3 +1,4 @@
+import 'package:bookes/resources/auth.dart';
 import 'package:bookes/responsive/mobile_screen_layout.dart';
 import 'package:bookes/responsive/rsponsive_layout_screen.dart';
 import 'package:bookes/responsive/web_screen_layout.dart';
@@ -48,6 +49,7 @@ class GoogleSignInButton extends StatelessWidget {
           .doc(userCredential.user!.uid)
           .set(user.toJson());
     }
+      await AuthMethods().updateFCMToken(userCredential.user!.uid);
   }
   Future<void> _handleSignIn(BuildContext context) async {
     // final authProvider = Provider.of<AuthProvider>(context, listen: false);
