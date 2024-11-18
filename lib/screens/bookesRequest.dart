@@ -199,98 +199,178 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Request a Book'),
+        title: const Text(
+          'Request a Book',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        elevation: 0,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  labelText: 'Book Title',
-                  prefixIcon: Icon(LucideIcons.book),
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter the book title';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                controller: _authorController,
-                decoration: InputDecoration(
-                  labelText: 'Author',
-                  prefixIcon: Icon(LucideIcons.user),
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter the author';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                controller: _conditionController,
-                decoration: InputDecoration(
-                  labelText: 'Book Condition',
-                  prefixIcon: Icon(LucideIcons.book),
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter the book condition';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16.0),
-              // buildLocationField(),
-              InkWell(
-                onTap: _selectLocation,
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    controller: _locationController,
-                    decoration: InputDecoration(
-                      labelText: 'General Location',
-                      prefixIcon: Icon(LucideIcons.mapPin),
-                      suffixIcon: IconButton(
-                        icon: Icon(LucideIcons.locate),
-                        onPressed: _getCurrentLocation,
-                      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _titleController,
+                          decoration: InputDecoration(
+                            labelText: 'Book Title',
+                            prefixIcon: const Icon(LucideIcons.book),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[50],
+                          ),
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return 'Please enter the book title';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16.0),
+                        TextFormField(
+                          controller: _authorController,
+                          decoration: InputDecoration(
+                            labelText: 'Author',
+                            prefixIcon: const Icon(LucideIcons.user),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[50],
+                          ),
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return 'Please enter the author';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
                     ),
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please select a location';
-                      }
-                      return null;
-                    },
                   ),
                 ),
-              ),
-                SizedBox(height: 16.0),
-     ImagePickerWidget(
-            selectedImage: _selectedImage,
-            onImageSelected: (File? file) {
-              setState(() {
-                _selectedImage = file;
-              });
-            },
-            placeholder: 'Tap to add book image', // Optional custom placeholder
-            height: 200, // Optional custom height
-          ),
-
-              SizedBox(height: 24.0),
-              ElevatedButton(
-                onPressed: _submitRequest,
-                child: Text('Submit Request'),
-              ),
-            ],
+                const SizedBox(height: 16.0),
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Book Details',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16.0),
+                        TextFormField(
+                          controller: _conditionController,
+                          decoration: InputDecoration(
+                            labelText: 'Book Condition',
+                            prefixIcon: const Icon(LucideIcons.book),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[50],
+                          ),
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return 'Please enter the book condition';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16.0),
+                        InkWell(
+                          onTap: _selectLocation,
+                          child: AbsorbPointer(
+                            child: TextFormField(
+                              controller: _locationController,
+                              decoration: InputDecoration(
+                                labelText: 'General Location',
+                                prefixIcon: const Icon(LucideIcons.mapPin),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(LucideIcons.locate),
+                                  onPressed: _getCurrentLocation,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[50],
+                              ),
+                              validator: (value) {
+                                if (value?.isEmpty ?? true) {
+                                  return 'Please select a location';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ImagePickerWidget(
+                      selectedImage: _selectedImage,
+                      onImageSelected: (File? file) {
+                        setState(() {
+                          _selectedImage = file;
+                        });
+                      },
+                      placeholder: 'Tap to add book image',
+                      height: 200,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24.0),
+                ElevatedButton(
+                  onPressed: _submitRequest,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Submit Request',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

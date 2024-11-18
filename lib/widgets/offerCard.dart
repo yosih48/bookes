@@ -219,8 +219,10 @@ class OfferCard extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => ChatScreen(
                 chatId: chatId,
-                currentUserId: offer['requesterId'],
-                otherUserId: offer['offererId'],
+                      currentUserId:
+                    isLenderView ? offer['offererId'] : offer['requesterId'],
+                otherUserId:
+                    isLenderView ? offer['requesterId'] : offer['offererId'],
               ),
             ),
           );

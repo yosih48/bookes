@@ -111,6 +111,72 @@ Container(
                         fontSize: 14,
                       ),
                     ],
+
+                    const SizedBox(height: 8),
+                    const Divider(),
+                    const SizedBox(height: 4),
+                    FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection('users')
+                          .where('uid', isEqualTo: request.userId)
+                          .limit(1)
+                          .get()
+                          .then((snapshot) => snapshot.docs.first),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const SizedBox(
+                            height: 20,
+                            child: Center(
+                              child: SizedBox(
+                                width: 12,
+                                height: 12,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            ),
+                          );
+                        }
+
+                        if (!snapshot.hasData) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final userData =
+                            snapshot.data!.data() as Map<String, dynamic>;
+                        final userName = userData['username'] ?? 'Unknown';
+                        final userRating =
+                            (userData['rating'] as num?)?.toStringAsFixed(1) ??
+                                '0.0';
+
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: _buildDetailRow(
+                                Icons.account_circle_outlined,
+                                'By: $userName',
+                                iconSize: 16,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(Icons.star, size: 16, color: Colors.amber),
+                            Text(
+                              ' $userRating',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+
+
+
+
+
                   ],
                 ),
               ),
