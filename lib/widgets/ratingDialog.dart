@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 class RatingDialog extends StatefulWidget {
   final String transactionId;
   final String lenderId;
-
+  final String borrowerId;
+final bool isLenderView;
   const RatingDialog({
     Key? key,
     required this.transactionId,
     required this.lenderId,
+    required this.borrowerId,
+    required this.isLenderView,
   }) : super(key: key);
 
   @override
@@ -77,16 +80,25 @@ class _RatingDialogState extends State<RatingDialog> {
           .collection('bookTransactions')
           .doc(widget.transactionId);
 
+if(widget.isLenderView){
+
       batch.update(transactionRef, {
         'borrowerRating': _rating,
         'borrowerComment': _commentController.text.trim(),
         'ratedAt': FieldValue.serverTimestamp(),
       });
+}else{
+        batch.update(transactionRef, {
+        'lenderRating': _rating,
+        'lenderComment': _commentController.text.trim(),
+        'ratedAt': FieldValue.serverTimestamp(),
+      });
+}
 
       // 2. Get the lender's current rating data
       final lenderDoc = await FirebaseFirestore.instance
           .collection('users')
-          .doc(widget.lenderId)
+          .doc( widget.isLenderView? widget.borrowerId: widget.lenderId)
           .get();
 
       final userData = lenderDoc.data() as Map<String, dynamic>;
@@ -100,7 +112,7 @@ class _RatingDialogState extends State<RatingDialog> {
 
       // 4. Update the lender's rating
       final lenderRef =
-          FirebaseFirestore.instance.collection('users').doc(widget.lenderId);
+          FirebaseFirestore.instance.collection('users').doc(widget.isLenderView? widget.borrowerId: widget.lenderId);
 
       batch.update(lenderRef, {
         'rating': newRating,

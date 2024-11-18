@@ -6,15 +6,17 @@ class User {
   final String uid;
 
   final String username;
-    final double? rating; // Average rating
+  final double? rating; // Average rating
   final int? totalRatings;
+  final int? booksShared;
 
   const User({
     required this.username,
     required this.uid,
     required this.email,
-        this.rating,
+    this.rating,
     this.totalRatings,
+    this.booksShared,
   });
 
   static User fromSnap(DocumentSnapshot snap) {
@@ -25,7 +27,9 @@ class User {
       username: snapshot["username"],
       uid: snapshot["uid"],
       email: snapshot["email"],
-            rating: snapshot["rating"]?.toDouble(), // Convert to double
+        rating: snapshot["rating"]?.toDouble(), // Convert to double
+        booksShared: snapshot["booksShared"]?.toDouble(), // Convert to double
+        
       totalRatings: snapshot["totalRatings"],
     );
   }
@@ -35,6 +39,7 @@ class User {
         "uid": uid,
         "email": email,
                 "rating": rating, // Store the double value
+                "booksShared": booksShared, // Store the double value
         "totalRatings": totalRatings
       };
 }
