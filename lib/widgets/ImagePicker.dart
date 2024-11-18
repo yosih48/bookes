@@ -1,131 +1,129 @@
-// lib/widgets/image_picker_widget.dart
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'dart:io';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+
 class ImagePickerWidget extends StatelessWidget {
   final File? selectedImage;
   final Function(File?) onImageSelected;
-  final double height;
   final String placeholder;
+  final double height;
 
   const ImagePickerWidget({
     Key? key,
     required this.selectedImage,
     required this.onImageSelected,
-    this.height = 200,
-    this.placeholder = 'Tap to add image',
+    required this.placeholder,
+    required this.height,
   }) : super(key: key);
 
-  Future<void> _checkPermissionAndPickImage(BuildContext context) async {
-    print('dssssss');
+  Future<void> _showImageSourceDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Image Source'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(LucideIcons.camera),
+                title: const Text('Take Photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(LucideIcons.image),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
     try {
-      // Check platform
-      if (Theme.of(context).platform == TargetPlatform.android) {
-        final status = await Permission.storage.status;
-        if (status.isDenied) {
-           print('Request permission');
-          // Request permission
-          final result = await Permission.storage.request();
-              print(result);
-          if (result.isDenied) {
-                print('Permission denied');
-            return; // Permission denied
-          }
-        }
-      }
- print('dssssss');
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1200, // Optional: limit image size
+        source: source,
+        maxWidth: 1200,
         maxHeight: 1200,
-        imageQuality: 85, // Optional: compress image
+        imageQuality: 85,
       );
 
       if (image != null) {
         onImageSelected(File(image.path));
       }
     } catch (e) {
-      debugPrint('Error picking image: $e');
-      // Show error message to user
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error picking image: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      print('Error picking image: $e');
     }
   }
-  Future<void> _pickImage() async {
-    try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        onImageSelected(File(image.path));
-      }
-    } catch (e) {
-      debugPrint('Error picking image: $e');
-    }
-  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        selectedImage != null
-            ? Container(
-                height: height,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Image.file(
-                        selectedImage!,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned(
-                      right: 8,
-                      top: 8,
-                      child: IconButton(
-                        icon: const Icon(LucideIcons.x),
-                        onPressed: () => onImageSelected(null),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.7),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : InkWell(
-                    //  onTap: () => _checkPermissionAndPickImage(context),
-                     onTap:  _pickImage,
-                child: Container(
-                  height: height,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
+    return InkWell(
+      onTap: () => _showImageSourceDialog(context),
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.grey[300]!,
+            width: 1,
+          ),
+        ),
+        child: selectedImage != null
+            ? Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      selectedImage!,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(LucideIcons.image, size: 48, color: Colors.grey),
-                      const SizedBox(height: 8),
-                      Text(placeholder),
-                    ],
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: IconButton(
+                      icon: const Icon(LucideIcons.x),
+                      onPressed: () => onImageSelected(null),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.8),
+                      ),
+                    ),
                   ),
-                ),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    LucideIcons.image,
+                    size: 48,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    placeholder,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
-      ],
+      ),
     );
   }
 }
