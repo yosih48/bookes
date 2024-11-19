@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:lucide_icons/lucide_icons.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 class ImagePickerWidget extends StatelessWidget {
   final File? selectedImage;
   final Function(File?) onImageSelected;
@@ -22,13 +23,13 @@ class ImagePickerWidget extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Select Image Source'),
+          title: Text(AppLocalizations.of(context)!.selectimagesource),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
                 leading: const Icon(LucideIcons.camera),
-                title: const Text('Take Photo'),
+                title: Text(AppLocalizations.of(context)!.takephoto),
                 onTap: () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.camera);
@@ -36,7 +37,7 @@ class ImagePickerWidget extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(LucideIcons.image),
-                title: const Text('Choose from Gallery'),
+                title:  Text(AppLocalizations.of(context)!.choosefromgallery),
                 onTap: () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.gallery);

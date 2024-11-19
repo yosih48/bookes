@@ -1,0 +1,13 @@
+{
+  "he": [
+    "name",
+    "enter",
+    "exit",
+    "createnewgroup",
+    "entergroupname",
+    "create",
+    "mygroups",
+    "confirmsignout",
+    "leaveapp"
+  ]
+}

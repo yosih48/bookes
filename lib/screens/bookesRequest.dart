@@ -15,6 +15,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 class BookRequestScreen extends StatefulWidget {
   @override
   _BookRequestScreenState createState() => _BookRequestScreenState();
@@ -199,8 +201,8 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Request a Book',
+        title: Text(
+          AppLocalizations.of(context)!.requestabook,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
@@ -225,7 +227,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                         TextFormField(
                           controller: _titleController,
                           decoration: InputDecoration(
-                            labelText: 'Book Title',
+                            labelText: AppLocalizations.of(context)!.booktitle,
                             prefixIcon: const Icon(LucideIcons.book),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -235,7 +237,8 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                           ),
                           validator: (value) {
                             if (value?.isEmpty ?? true) {
-                              return 'Please enter the book title';
+                              return AppLocalizations.of(context)!
+                                  .pleaseenterbooktitle;
                             }
                             return null;
                           },
@@ -244,7 +247,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                         TextFormField(
                           controller: _authorController,
                           decoration: InputDecoration(
-                            labelText: 'Author',
+                            labelText: AppLocalizations.of(context)!.author,
                             prefixIcon: const Icon(LucideIcons.user),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -254,7 +257,9 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                           ),
                           validator: (value) {
                             if (value?.isEmpty ?? true) {
-                              return 'Please enter the author';
+                              return AppLocalizations
+                                  .of(context)!
+                                  .pleaseentertheauthor;
                             }
                             return null;
                           },
@@ -274,8 +279,8 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Book Details',
+                        Text(
+                          AppLocalizations.of(context)!.bookdetails,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -285,7 +290,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                         TextFormField(
                           controller: _conditionController,
                           decoration: InputDecoration(
-                            labelText: 'Book Condition',
+                            labelText: AppLocalizations.of(context)!.bookcondition,
                             prefixIcon: const Icon(LucideIcons.book),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -295,7 +300,8 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                           ),
                           validator: (value) {
                             if (value?.isEmpty ?? true) {
-                              return 'Please enter the book condition';
+                              return AppLocalizations.of(context)!
+                                  .bookcondition;
                             }
                             return null;
                           },
@@ -307,7 +313,8 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                             child: TextFormField(
                               controller: _locationController,
                               decoration: InputDecoration(
-                                labelText: 'General Location',
+                                labelText: AppLocalizations.of(context)!
+                                    .generallocation,
                                 prefixIcon: const Icon(LucideIcons.mapPin),
                                 suffixIcon: IconButton(
                                   icon: const Icon(LucideIcons.locate),
@@ -321,7 +328,8 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                               ),
                               validator: (value) {
                                 if (value?.isEmpty ?? true) {
-                                  return 'Please select a location';
+                                  return AppLocalizations.of(context)!
+                                      .pleaseselectalocation;
                                 }
                                 return null;
                               },
@@ -347,7 +355,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                           _selectedImage = file;
                         });
                       },
-                      placeholder: 'Tap to add book image',
+                      placeholder: AppLocalizations.of(context)!.taptoaddbookimage,
                       height: 200,
                     ),
                   ),
@@ -361,8 +369,8 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
-                    'Submit Request',
+                  child: Text(
+                   AppLocalizations.of(context)!.submitrequest,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

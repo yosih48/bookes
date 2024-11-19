@@ -10,7 +10,8 @@ import 'package:bookes/widgets/transactionCard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
@@ -63,8 +64,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                         // await AuthMethods().signOut();
                         // Navigator.of(context).pushReplacementNamed('/login');
                       },
-                      child: const Text(
-                        'Sign Out',
+                      child:  Text(
+                        AppLocalizations.of(context)!.signout,
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -76,11 +77,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                       controller: _tabController,
                       labelColor: Theme.of(context).primaryColor,
                       unselectedLabelColor: Colors.grey,
-                      tabs: const [
-                        Tab(text: 'MY REQUESTS'),
-                        Tab(text: 'OFFERS'),
-                        Tab(text: 'HISTORY'),
-                        Tab(text: 'CHATS'),
+                      tabs:  [
+                        Tab(text: AppLocalizations.of(context)!.myrequests),
+                        Tab(text: AppLocalizations.of(context)!.offers),
+                        Tab(text: AppLocalizations.of(context)!.history),
+                        Tab(text: AppLocalizations.of(context)!.chats),
                       ],
                     ),
                   ),
@@ -173,7 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '(${userData['totalRatings'] ?? '0'} ratings)',
+                  '(${userData['totalRatings'] ?? '0'} ${AppLocalizations.of(context)!.ratings})',
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
@@ -286,14 +287,14 @@ class _ActiveChatsTab extends StatelessWidget {
         final chats = snapshot.data!.docs;
 
         if (chats.isEmpty) {
-          return const Center(
+          return  Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
                 SizedBox(height: 16),
                 Text(
-                  'No active chats',
+                 AppLocalizations.of(context)!.noactivechats,
                   style: TextStyle(color: Colors.grey),
                 ),
               ],
@@ -404,14 +405,14 @@ class MyHistoryTab extends StatelessWidget {
         final transactions = snapshot.data!.docs;
 
         if (transactions.isEmpty) {
-          return const Center(
+          return  Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.menu_book_outlined, size: 64, color: Colors.grey),
                 SizedBox(height: 16),
                 Text(
-                  'No lending history yet',
+                 AppLocalizations.of(context)!.nolendinghistoryyet,
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 16,
@@ -420,7 +421,7 @@ class MyHistoryTab extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Books you lend will appear here',
+                 AppLocalizations.of(context)!.booksyoulendwillappearhere,
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 14,

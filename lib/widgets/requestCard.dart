@@ -5,7 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 class RequestCard extends StatelessWidget {
   final Map<String, dynamic> request;
   final String requestId;
@@ -54,7 +55,7 @@ class RequestCard extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(request['author'] ?? 'Unknown Author'),
-                trailing: _buildStatusChip(request['status']),
+                trailing: _buildStatusChip(request['status'], context),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -62,7 +63,7 @@ class RequestCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Posted ${_formatDate(request['createdAt'])}',
+                      '${AppLocalizations.of(context)!.posted} ${_formatDate(request['createdAt'])}',
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 12,
@@ -75,7 +76,7 @@ class RequestCard extends StatelessWidget {
                             size: 16, color: Colors.grey[600]),
                         const SizedBox(width: 4),
                         Text(
-                          '$offersCount offers',
+                          '$offersCount ${AppLocalizations.of(context)!.offersCount}',
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
@@ -91,7 +92,8 @@ class RequestCard extends StatelessWidget {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => showCancelRequestConfirmation(context, requestId),
-                          child: const Text('Cancel Request'),
+                          child:  Text(
+                              AppLocalizations.of(context)!.cancelrequest),
                         ),
                       ),
                       // if (offersCount > 0) ...[
@@ -113,26 +115,26 @@ class RequestCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusChip(String? status) {
+  Widget _buildStatusChip(String? status, context) {
     Color color;
     String label;
 
     switch (status) {
       case 'Active':
         color = Colors.blue;
-        label = 'Active';
+        label = AppLocalizations.of(context)!.active;
         break;
       case 'fulfilled':
         color = Colors.green;
-        label = 'Fulfilled';
+        label = AppLocalizations.of(context)!.fulfilled;
         break;
       case 'cancelled':
         color = Colors.red;
-        label = 'Cancelled';
+        label = AppLocalizations.of(context)!.cancelled;
         break;
       default:
         color = Colors.grey;
-        label = 'Unknown';
+        label = AppLocalizations.of(context)!.unknown;
     }
 
     return Container(

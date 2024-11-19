@@ -34,7 +34,42 @@
     "yes": "yes",
     "signout": "Sign Out",
     "username": "User Name",
-    "or": "or"
+    "or": "or",
+    "bookesrequest": "Bookes Requests",
+    "requestabook": "Request a Book",
+    "booktitle": "Book Title",
+    "pleaseenterbooktitle": "Please enter the book title",
+    "pleaseentertheauthor": "Please enter the author",
+    "pleaseenterbookcondition": "Please enter the book condition",
+    "author": "Author",
+    "bookdetails": "Book Details",
+    "bookcondition": "Book Condition",
+    "generallocation": "General Location",
+    "pleaseselectalocation": "Please select a location",
+    "taptoaddbookimage": "Tap to add book image",
+    "submitrequest": "Submit Request",
+    "selectimagesource": "Select Image Source",
+    "takephoto": "Take Photo",
+    "choosefromgallery": "Choose from Gallery",
+    "myrequests": "MY REQUESTS",
+    "offers": "OFFERS",
+    "history": "HISTORY",
+    "chats": "CHATS",
+    "ratings": "ratings",
+    "noactivechats": "No active chats",
+    "nolendinghistoryyet": "No lending history yet",
+    "booksyoulendwillappearhere": "Books you lend will appear here",
+    "signout": "Sign Out",
+    "posted": "Posted",
+    "offersCount": "offersa",
+    "cancelrequest": "Cancel Request",
+    "active": "Active",
+    "fulfilled": "Fulfilled",
+    "cancelled": "Cancelled",
+    "unknown": "Unknown"
+    
+
+
     
 
 
