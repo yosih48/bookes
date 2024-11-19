@@ -3,6 +3,9 @@ import 'package:bookes/widgets/confirmDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 class OfferCard extends StatelessWidget {
   final Map<String, dynamic> offer;
@@ -59,7 +62,7 @@ class OfferCard extends StatelessWidget {
                     Text(' ${userData['rating']?.toStringAsFixed(1) ?? '0.0'}'),
                   ],
                 ),
-                trailing: _buildStatusChip(offer['status']),
+                trailing: _buildStatusChip(offer['status'], context),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -92,7 +95,7 @@ class OfferCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Offered ${_formatDate(offer['createdAt'])}',
+                            '${AppLocalizations.of(context)!.offerdate} ${_formatDate(offer['createdAt'])}',
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 12,
@@ -117,7 +120,8 @@ class OfferCard extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => _openChat(context),
                           icon: const Icon(Icons.chat, size: 18),
-                          label: const Text('Open Chat'),
+                          label:  Text(
+                              AppLocalizations.of(context)!.openchat),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -139,7 +143,8 @@ class OfferCard extends StatelessWidget {
                         child: OutlinedButton(
                           onPressed: () =>
                               showAcceptOfferConfirmation(context, 'declined', offerId, offer),
-                          child: const Text('Decline'),
+                          child:  Text(
+                              AppLocalizations.of(context)!.decline),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -147,7 +152,8 @@ class OfferCard extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () =>
                               showAcceptOfferConfirmation(context, 'accepted', offerId, offer),
-                          child: const Text('Accept'),
+                          child:  Text(
+                              AppLocalizations.of(context)!.accept),
                         ),
                       ),
                     ],
@@ -160,22 +166,22 @@ class OfferCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusChip(String? status) {
+  Widget _buildStatusChip(String? status, context) {
     Color color;
     String label;
 
     switch (status) {
       case 'pending':
         color = Colors.orange;
-        label = 'Pending';
+        label = AppLocalizations.of(context)!.pending;
         break;
       case 'accepted':
         color = Colors.green;
-        label = 'Accepted';
+        label = AppLocalizations.of(context)!.accepted;
         break;
       case 'declined':
         color = Colors.red;
-        label = 'Declined';
+        label = AppLocalizations.of(context)!.declined;
         break;
       default:
         color = Colors.grey;

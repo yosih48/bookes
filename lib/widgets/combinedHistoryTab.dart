@@ -1,5 +1,7 @@
 import 'package:bookes/screens/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class CombinedHistoryTab extends StatefulWidget {
   final String userId;
@@ -37,7 +39,7 @@ class _CombinedHistoryTabState extends State<CombinedHistoryTab> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      'Borrowed Books',
+                     AppLocalizations.of(context)!.borrowedBooks,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: showBorrowedBooks ? Colors.white : Colors.grey,
@@ -59,7 +61,7 @@ class _CombinedHistoryTabState extends State<CombinedHistoryTab> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      'Lent Books',
+                     AppLocalizations.of(context)!.lentBooks,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: !showBorrowedBooks ? Colors.white : Colors.grey,

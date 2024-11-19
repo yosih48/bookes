@@ -5,6 +5,8 @@ import 'package:bookes/widgets/ratingDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class TransactionCard extends StatelessWidget {
   final Map<String, dynamic> transaction;
@@ -41,7 +43,7 @@ final bool isLenderView;
             ]),
             builder: (context, AsyncSnapshot<List<DocumentSnapshot>> snapshots) {
               if (!snapshots.hasData) {
-                return const Text('Loading...');
+                return Text(AppLocalizations.of(context)!.loading);
               }
               
               final userData = snapshots.data![0].data() as Map<String, dynamic>;
@@ -51,11 +53,11 @@ final bool isLenderView;
                 children: [
                   !isLenderView
                       ? Text(
-                          'Borrowed from ${userData['username']}',
+                          '${AppLocalizations.of(context)!.borrowedfrom} ${userData['username']}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         )
                       : Text(
-                          'Lent to ${userData['username']}',
+                          '${AppLocalizations.of(context)!.lentto} ${userData['username']}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                   Row(
@@ -80,7 +82,7 @@ final bool isLenderView;
             },
           ),
           subtitle: Text(_formatDate(transaction['startDate'])),
-          trailing: _buildStatusChip(transaction['status']),
+          trailing: _buildStatusChip(transaction['status'], context),
         ),
         if (transaction['status'] == 'pending_meetup')
           Padding(
@@ -91,7 +93,8 @@ final bool isLenderView;
                   child: ElevatedButton.icon(
                     onPressed: () => _openChat(context),
                     icon: const Icon(Icons.chat),
-                    label: const Text('Contact Lender'),
+                    label:  Text(
+                          AppLocalizations.of(context)!.contactlender),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -100,7 +103,7 @@ final bool isLenderView;
                           child: OutlinedButton.icon(
                     onPressed: () => takenConfirmation(context,transactionId),
                     icon: const Icon(Icons.check),
-                    label: const Text('Mark as Taken'),
+                    label:  Text(AppLocalizations.of(context)!.markastaken),
                   ),
           
                 ),
@@ -116,7 +119,8 @@ final bool isLenderView;
                   child: ElevatedButton.icon(
                     onPressed: () => _openChat(context),
                     icon: const Icon(Icons.chat),
-                    label: const Text('Contact Lender'),
+                    label:  Text(
+                          AppLocalizations.of(context)!.contactlender),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -125,7 +129,7 @@ final bool isLenderView;
                     child: OutlinedButton.icon(
                     onPressed: () =>  returnConfirmation(context, transactionId),
                     icon: const Icon(Icons.check),
-                    label: const Text('Mark as Returned'),
+                    label:  Text(AppLocalizations.of(context)!.markasreturned),
                   ),
                 ),
               ],
@@ -137,7 +141,7 @@ final bool isLenderView;
             padding: const EdgeInsets.all(16),
             child: ElevatedButton(
               onPressed: () => _rateTransaction(context),
-              child: const Text('Rate Experience'),
+              child: Text(AppLocalizations.of(context)!.rateexperience),
             ),
           ),
       ],
@@ -145,30 +149,30 @@ final bool isLenderView;
   );
   }
 
-  Widget _buildStatusChip(String? status) {
+  Widget _buildStatusChip(String? status, context) {
     Color color;
     String label;
 
     switch (status) {
       case 'pending_meetup':
         color = Colors.orange;
-        label = 'Pending Meetup';
+        label = AppLocalizations.of(context)!.pendingmeetup;
         break;
       case 'ongoing':
         color = Colors.blue;
-        label = 'Ongoing';
+        label = AppLocalizations.of(context)!.ongoing;
         break;
       case 'completed':
         color = Colors.green;
-        label = 'Completed';
+        label = AppLocalizations.of(context)!.completed;
         break;
       case 'overdue':
         color = Colors.red;
-        label = 'Overdue';
+        label = AppLocalizations.of(context)!.overdue;
         break;
       default:
         color = Colors.grey;
-        label = 'Unknown';
+        label = AppLocalizations.of(context)!.unknown;
     }
 
     return Container(

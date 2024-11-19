@@ -1,6 +1,8 @@
 import 'package:bookes/screens/profile.dart';
 import 'package:bookes/widgets/offersTab.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class CombinedOffersTab extends StatefulWidget {
   final String userId;
@@ -38,7 +40,7 @@ class _CombinedOffersTabState extends State<CombinedOffersTab> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      'Received',
+                      AppLocalizations.of(context)!.received,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: showReceivedOffers ? Colors.white : Colors.grey,
@@ -60,7 +62,7 @@ class _CombinedOffersTabState extends State<CombinedOffersTab> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      'My Offers',
+                      AppLocalizations.of(context)!.myOffers,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: !showReceivedOffers ? Colors.white : Colors.grey,

@@ -2,7 +2,8 @@ import 'package:bookes/screens/chatScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class ChatListItem extends StatelessWidget {
   final String chatId;
@@ -28,10 +29,10 @@ class ChatListItem extends StatelessWidget {
           FirebaseFirestore.instance.collection('users').doc(otherUserId).get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const Card(
+          return Card(
             child: ListTile(
               leading: CircleAvatar(),
-              title: Text('Loading...'),
+              title: Text(AppLocalizations.of(context)!.loading),
             ),
           );
         }
@@ -92,7 +93,7 @@ class ChatListItem extends StatelessWidget {
 
                 final transaction =
                     snapshot.data!.data() as Map<String, dynamic>;
-                return _buildStatusChip(transaction['status']);
+                return _buildStatusChip(transaction['status'], context);
               },
             ),
           ),
@@ -101,26 +102,26 @@ class ChatListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusChip(String status) {
+  Widget _buildStatusChip(String status, context) {
     Color color;
     String label;
 
     switch (status) {
       case 'pending_meetup':
         color = Colors.orange;
-        label = 'Pending Meetup';
+        label = AppLocalizations.of(context)!.pendingmeetup;
         break;
       case 'active':
         color = Colors.green;
-        label = 'Active';
+        label = AppLocalizations.of(context)!.active;
         break;
       case 'completed':
         color = Colors.blue;
-        label = 'Completed';
+        label = AppLocalizations.of(context)!.completed;
         break;
       default:
         color = Colors.grey;
-        label = 'Unknown';
+        label = AppLocalizations.of(context)!.unknown;
     }
 
     return Container(
