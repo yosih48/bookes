@@ -72,6 +72,24 @@
     "received": "התקבלו",
     "myOffers": "הצעות שלי",
     "borrowedBooks": "ספרים ששאלתי",
-    "lentBooks": "ספרים שהשאלתי"
+    "lentBooks": "ספרים שהשאלתי",
+    "locationservicesaredisabled": "שרותי מיקום מושבתים, בבקשה הפעל את השירות",
+    "locationpermissionsaredenied": "גישה לשרותי מיקום נדחתה",
+    "bookRequests": "בקשות ספרים",
+    "all": "הכל",
+    "nearby": "קרוב אליך",
+    "condition": "מצב",
+    "location": "מיקום",
+    "distance": "מרחק",
+    "by": "ע\"י",
+    "ihaveit": "יש לי את הספר!",
+        "rateYourExperience": "דרג את החוויה שלך",
+    "leaveacomment": "השאר הודעה (אפשרות)",
+    "areyousureyouwanttosignoutofyouraccount": "אתה בטוח שאתה רוצה להתנתק?",
+    "cancelRequest": "בטל בקשה",
+    "cancelbookrequest": " תרצה לבטל את הבקשה? לא תוכל לקבל הצעות נוספות עבור הספר .",
+    "acceptbookoffer": "תרצה לקבל את ההצעה? תוכל ליצור קשר עם המשאיל אחרי האישור",
+    "declinebookoffer": "תרצה לדחות את ההצעה? לא תוכל ליצור קשר עם המשאיל אחרי הדחייה",
+    "canceloffer": "בטל הצעה"
 
 }

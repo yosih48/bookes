@@ -3,6 +3,8 @@ import 'package:bookes/widgets/offerCard.dart';
 import 'package:bookes/widgets/requestCard.dart';
 import 'package:bookes/widgets/transactionCard.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class ConfirmDialog extends StatelessWidget {
   final String title;
@@ -129,7 +131,7 @@ class ConfirmDialog extends StatelessWidget {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    child: Text(cancelText),
+                    child: Text(AppLocalizations.of(context)!.cancel),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -164,9 +166,10 @@ class ConfirmDialog extends StatelessWidget {
 void showLogoutConfirmation(context) async {
   final result = await ConfirmDialog.show(
     context: context,
-    title: 'Sign Out',
-    message: 'Are you sure you want to sign out of your account?',
-    confirmText: 'Sign Out',
+    title: AppLocalizations.of(context)!.signout,
+    message:
+        AppLocalizations.of(context)!.areyousureyouwanttosignoutofyouraccount,
+    confirmText: AppLocalizations.of(context)!.signout,
     icon: Icons.logout,
     onConfirm: () async {
       await AuthMethods().signOut();
@@ -178,10 +181,9 @@ void showLogoutConfirmation(context) async {
 void showCancelRequestConfirmation(context, requestId) async {
   final result = await ConfirmDialog.show(
     context: context,
-    title: 'Cancel Request',
-    message:
-        'Would you like to cancel this book request? You will be able to get offers for this request .',
-    confirmText: 'Accept',
+    title: AppLocalizations.of(context)!.cancelRequest,
+    message: AppLocalizations.of(context)!.cancelbookrequest,
+    confirmText: AppLocalizations.of(context)!.accept,
     icon: Icons.check_circle_outline,
     confirmColor: Colors.green,
   );
@@ -194,14 +196,14 @@ void showCancelRequestConfirmation(context, requestId) async {
 void showAcceptOfferConfirmation(
     context, String response, offerId, offer) async {
   final acceptMessage =
-      'Would you like to accept this book offer? You will be able to chat with the lender after accepting.';
+      AppLocalizations.of(context)!.acceptbookoffer;
   final declineMessage =
-      'Would you like to decline this book offer? You will not be able to chat with the lender after declined.';
+      AppLocalizations.of(context)!.declinebookoffer;
   final result = await ConfirmDialog.show(
     context: context,
-    title: response == 'accepted' ? 'Accept Offer' : 'Cancel offer',
+    title: response == 'accepted' ? 'Accept Offer' : AppLocalizations.of(context)!.canceloffer,
     message: response == 'accepted' ? acceptMessage : declineMessage,
-    confirmText: response == 'accepted' ? 'Accept' : 'Decline',
+    confirmText: response == 'accepted' ? AppLocalizations.of(context)!.accept : AppLocalizations.of(context)!.decline,
     icon: response == 'accepted'
         ? Icons.check_circle_outline
         : Icons.cancel_outlined,
@@ -228,6 +230,7 @@ void takenConfirmation(context, transactionId) async {
     TransactionRequestService.markAsTaken(context, transactionId);
   }
 }
+
 void returnConfirmation(context, transactionId) async {
   final result = await ConfirmDialog.show(
     context: context,

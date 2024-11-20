@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 class BookRequestCard extends StatelessWidget {
   final BookRequest request;
   final double? distance;
@@ -82,21 +83,21 @@ Container(
                     // Book Details
                     _buildDetailRow(
                       Icons.person_outline,
-                      'Author: ${request.author}',
+                      '${AppLocalizations.of(context)!.author}: ${request.author}',
                       iconSize: 16,
                       fontSize: 14,
                     ),
                     const SizedBox(height: 4),
                     _buildDetailRow(
                       Icons.inventory_2_outlined,
-                      'Condition: ${request.condition}',
+                      '${AppLocalizations.of(context)!.condition}: ${request.condition}',
                       iconSize: 16,
                       fontSize: 14,
                     ),
                     const SizedBox(height: 4),
                     _buildDetailRow(
                       Icons.location_on_outlined,
-                      'Location: ${request.location}',
+                      '${AppLocalizations.of(context)!.location}: ${request.location}',
                       iconSize: 16,
                       fontSize: 14,
                     ),
@@ -105,7 +106,7 @@ Container(
                       const SizedBox(height: 4),
                       _buildDetailRow(
                         Icons.directions_walk,
-                        'Distance: ${distance!.toStringAsFixed(1)} km',
+                        '${AppLocalizations.of(context)!.distance}: ${distance!.toStringAsFixed(1)} km',
                         color: Theme.of(context).primaryColor,
                         iconSize: 16,
                         fontSize: 14,
@@ -154,7 +155,7 @@ Container(
                             Expanded(
                               child: _buildDetailRow(
                                 Icons.account_circle_outlined,
-                                'By: $userName',
+                                '${AppLocalizations.of(context)!.by}: $userName',
                                 iconSize: 16,
                                 fontSize: 14,
                               ),
@@ -215,8 +216,8 @@ Container(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
-                        'I have it!',
+                      child:  Text(
+                        AppLocalizations.of(context)!.ihaveit,
                         style: TextStyle(fontSize: 12),
                       ),
                     ),

@@ -11,7 +11,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 class BookRequestsScreen extends StatefulWidget {
   @override
   _BookRequestsScreenState createState() => _BookRequestsScreenState();
@@ -79,8 +80,8 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Location services are disabled. Please enable them.'),
+ SnackBar(
+          content: Text(AppLocalizations.of(context)!.locationservicesaredisabled),
         ),
       );
       return false;
@@ -91,8 +92,8 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Location permissions are denied.'),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.locationpermissionsaredenied),
           ),
         );
         return false;
@@ -106,21 +107,21 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Book Requests'),
+        title: Text(AppLocalizations.of(context)!.bookRequests),
         actions: [
           // Toggle button
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: SegmentedButton<bool>(
-              segments: const [
+              segments:  [
                 ButtonSegment<bool>(
                   value: false,
-                  label: Text('All'),
+                  label: Text(AppLocalizations.of(context)!.all),
                   icon: Icon(LucideIcons.list),
                 ),
                 ButtonSegment<bool>(
                   value: true,
-                  label: Text('Nearby'),
+                  label: Text(AppLocalizations.of(context)!.nearby),
                   icon: Icon(LucideIcons.mapPin),
                 ),
               ],

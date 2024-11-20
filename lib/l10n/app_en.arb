@@ -88,7 +88,25 @@
     "received": "Received",
     "myOffers": "My Offers",
     "borrowedBooks": "Borrowed Books",
-    "lentBooks": "Lent Books"
+    "lentBooks": "Lent Books",
+    "locationservicesaredisabled": "Location services are disabled. Please enable them",
+    "locationpermissionsaredenied": "Location permissions are denied",
+    "bookRequests": "Book Requests",
+    "all": "All",
+    "nearby": "Nearby",
+    "condition": "Condition",
+    "location": "Location",
+    "distance": "Distance",
+    "by": "By",
+    "ihaveit": "I have it!",
+    "rateYourExperience": "Rate Your Experience",
+    "leaveacomment": "Leave a comment (optional)",
+    "areyousureyouwanttosignoutofyouraccount": "Are you sure you want to sign out of your account?",
+    "cancelRequest": "Cancel Request",
+    "cancelbookrequest": "Would you like to cancel this book request? You will be able to get offers for this request .",
+    "acceptbookoffer": "Would you like to accept this book offer? You will be able to chat with the lender after accepting.is book request? You will be able to get offers for this request .",
+    "declinebookoffer": "Would you like to decline this book offer? You will not be able to chat with the lender after declined.",
+    "canceloffer": "Cancel offer"
 
 
     

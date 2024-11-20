@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 class RatingDialog extends StatefulWidget {
   final String transactionId;
@@ -25,7 +28,7 @@ class _RatingDialogState extends State<RatingDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Rate Your Experience'),
+      title: Text(AppLocalizations.of(context)!.rateYourExperience),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -50,8 +53,8 @@ class _RatingDialogState extends State<RatingDialog> {
           TextField(
             controller: _commentController,
             maxLines: 3,
-            decoration: const InputDecoration(
-              hintText: 'Leave a comment (optional)',
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.leaveacomment,
               border: OutlineInputBorder(),
             ),
           ),
@@ -60,11 +63,11 @@ class _RatingDialogState extends State<RatingDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         ElevatedButton(
           onPressed: () => _submitRating(context),
-          child: const Text('Submit'),
+          child:  Text(AppLocalizations.of(context)!.submitrequest),
         ),
       ],
     );
