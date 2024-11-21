@@ -106,7 +106,8 @@
     "cancelbookrequest": "Would you like to cancel this book request? You will be able to get offers for this request .",
     "acceptbookoffer": "Would you like to accept this book offer? You will be able to chat with the lender after accepting.is book request? You will be able to get offers for this request .",
     "declinebookoffer": "Would you like to decline this book offer? You will not be able to chat with the lender after declined.",
-    "canceloffer": "Cancel offer"
+    "canceloffer": "Cancel offer",
+    "acceptOffer": "Accept Offer"
 
 
     

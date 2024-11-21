@@ -201,7 +201,7 @@ void showAcceptOfferConfirmation(
       AppLocalizations.of(context)!.declinebookoffer;
   final result = await ConfirmDialog.show(
     context: context,
-    title: response == 'accepted' ? 'Accept Offer' : AppLocalizations.of(context)!.canceloffer,
+    title: response == 'accepted' ? AppLocalizations.of(context)!.acceptOffer : AppLocalizations.of(context)!.canceloffer,
     message: response == 'accepted' ? acceptMessage : declineMessage,
     confirmText: response == 'accepted' ? AppLocalizations.of(context)!.accept : AppLocalizations.of(context)!.decline,
     icon: response == 'accepted'
