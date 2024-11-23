@@ -1,7 +1,52 @@
+import 'package:bookes/widgets/bookCard.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 class MainDashboard extends StatelessWidget {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Function to calculate distance (you'll need to implement this based on user's location)
+  String _calculateDistance(GeoPoint bookLocation, GeoPoint? userLocation) {
+    // Implement distance calculation logic here
+    // For now returning placeholder
+    return "0.5 mi away";
+  }
+
+
+  void _handleBookRequest(BuildContext context, String bookId, Map<String, dynamic> bookData) async {
+    // Implement your book request logic here
+    // You might want to show a dialog or navigate to a request screen
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.requestBook),
+        content: Text(AppLocalizations.of(context)!.confirmBookRequest),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Implement request logic
+              Navigator.pop(context);
+            },
+            child: Text(AppLocalizations.of(context)!.confirm),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,21 +61,25 @@ class MainDashboard extends StatelessWidget {
             // Search Bar
             TextField(
               decoration: InputDecoration(
-                hintText: 'Search books near you',
+                hintText: AppLocalizations.of(context)!.searchBooksNearYou,
                 prefixIcon: Icon(LucideIcons.book),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
+              // TODO: Implement search functionality
+              onChanged: (value) {
+                // Add search logic
+              },
             ),
             SizedBox(height: 16.0),
 
-            // Nearby Books
+            // Nearby Books Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Nearby Books',
+                  AppLocalizations.of(context)!.nearbyBooks,
                   style: TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.bold,
@@ -41,113 +90,84 @@ class MainDashboard extends StatelessWidget {
                     // Navigate to map view
                   },
                   icon: Icon(LucideIcons.map),
-                  label: Text('View on Map'),
+                  label: Text(AppLocalizations.of(context)!.viewOnMap),
                 ),
               ],
             ),
+
+            // Available Books Stream
             Expanded(
-              child: ListView.separated(
-                itemCount: 3,
-                separatorBuilder: (context, index) => SizedBox(height: 16.0),
-                itemBuilder: (context, index) {
-                  return Container(
-                    padding: EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          // child: Image.network(
-                          //   '/api/placeholder/80/120',
-                          //   width: 80,
-                          //   height: 120,
-                          // ),
-                        ),
-                        SizedBox(width: 16.0),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'The Great Gatsby',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 4.0),
-                              Text('by F. Scott Fitzgerald'),
-                              SizedBox(height: 4.0),
-                              Text('0.5 mi away'),
-                            ],
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Handle book request
-                          },
-                          child: Text('Request to Borrow'),
-                        ),
-                      ],
-                    ),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _firestore
+                    .collection('available_books')
+                    .where('status', isEqualTo: 'Available')
+                    .orderBy('createdAt', descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(AppLocalizations.of(context)!.errorLoadingBooks),
+                    );
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(LucideIcons.bookX, size: 48, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text(AppLocalizations.of(context)!.noBooksAvailable),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.separated(
+                    itemCount: snapshot.data!.docs.length,
+                    separatorBuilder: (context, index) => SizedBox(height: 16.0),
+                    itemBuilder: (context, index) {
+                      final doc = snapshot.data!.docs[index];
+                      final data = doc.data() as Map<String, dynamic>;
+
+                      return BookCard(
+                        bookId: doc.id,
+                        data: data,
+                        onRequestPress: () => _handleBookRequest(context, doc.id, data),
+                      );
+                    },
                   );
                 },
               ),
             ),
+
             SizedBox(height: 16.0),
 
-            // User Info
-            Center(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 32.0,
-                    // backgroundImage: NetworkImage('/api/placeholder/80/80'),
-                  ),
-                  SizedBox(height: 8.0),
-                  Text(
-                    'John Doe',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(LucideIcons.user, size: 16.0, color: Colors.grey),
-                      SizedBox(width: 4.0),
-                      Text('15 books shared'),
-                    ],
-                  ),
-                  SizedBox(height: 4.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(LucideIcons.messageCircle,
-                          size: 16.0, color: Colors.grey),
-                      SizedBox(width: 4.0),
-                      Text('8 conversations'),
-                    ],
-                  ),
-                  SizedBox(height: 8.0),
-                  TextButton(
-                    onPressed: () {
-                      // Navigate to user profile
-                    },
-                    child: Text('View Profile'),
-                  ),
-                ],
-              ),
-            ),
+            // User Profile Section (You might want to make this a separate stream)
+            // StreamBuilder<DocumentSnapshot>(
+            //   stream: _firestore
+            //       .collection('users')
+            //       .doc(FirebaseAuth.instance.currentUser?.uid)
+            //       .snapshots(),
+            //   builder: (context, snapshot) {
+            //     if (!snapshot.hasData) {
+            //       return SizedBox.shrink();
+            //     }
+
+            //     final userData = snapshot.data!.data() as Map<String, dynamic>?;
+            //     if (userData == null) return SizedBox.shrink();
+
+            //     return UserProfileWidget(userData: userData);
+            //   },
+            // ),
           ],
         ),
       ),
     );
   }
+
 }

@@ -8,6 +8,23 @@
     "create",
     "mygroups",
     "confirmsignout",
-    "leaveapp"
+    "leaveapp",
+    "bookUploadedSuccessfully",
+    "bookRequestSubmitted",
+    "imageRequired",
+    "uploadabook",
+    "switchToRequest",
+    "switchToUpload",
+    "uploadBook",
+    "submitRequest",
+    "requestToBorrow",
+    "requestBook",
+    "confirmBookRequest",
+    "confirm",
+    "searchBooksNearYou",
+    "nearbyBooks",
+    "viewOnMap",
+    "errorLoadingBooks",
+    "noBooksAvailable"
   ]
 }

@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:bookes/models/BookRequest.dart';
+import 'package:bookes/models/bookUpload.dart';
 import 'package:bookes/resources/BookRequest.dart';
 import 'package:bookes/resources/StorageService.dart';
+import 'package:bookes/resources/bookUpload.dart';
 import 'package:bookes/widgets/ImagePicker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +36,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
   bool _isLoading = false;
   File? _selectedImage;
   final _storageService = StorageService();
-
+bool _isUpload = false;
   
   @override
   void dispose() {
@@ -44,68 +46,100 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
 
 
 
-  void _submitRequest() async {
-  
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+ void _submitRequest(bool isUpload) async {
+  if (_selectedImage == null && isUpload) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.imageRequired),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
 
-      try {
+  if (_formKey.currentState!.validate()) {
+    setState(() {
+      _isLoading = true;
+    });
 
-     String? imageUrl;
-          if (_selectedImage != null) {
-          imageUrl = await StorageService().uploadImage(
-            imageFile: _selectedImage!,
-            path: 'book_images', // Folder in Firebase Storage
-          );
+    try {
+      String? imageUrl;
+      if (_selectedImage != null) {
+        imageUrl = await StorageService().uploadImage(
+          imageFile: _selectedImage!,
+          path: isUpload ? 'book_images/uploads' : 'book_images/requests',
+        );
+      }
+
+      final location = _selectedLocation;
+      final coordinates = _currentPosition != null
+          ? GeoPoint(_currentPosition!.latitude, _currentPosition!.longitude)
+          : const GeoPoint(0, 0);
+
+      if (isUpload) {
+        if (imageUrl == null) {
+          throw Exception('Image is required for book uploads');
         }
 
-        // Create book request object
-        final bookRequest = BookRequest(
-        
-          userId: userId, // Assuming you have this from auth
+        final bookUpload = BookUpload(
+          userId: userId,
           title: _titleController.text,
           author: _authorController.text,
           condition: _conditionController.text,
-          location: _selectedLocation,
-           imageUrl: imageUrl, 
-          coordinates: _currentPosition != null
-              ? GeoPoint(
-                  _currentPosition!.latitude, _currentPosition!.longitude)
-              : const GeoPoint(0, 0),
+          location: location,
+          imageUrl: imageUrl,
+          coordinates: coordinates,
           createdAt: DateTime.now(),
-          status: 'Active'
+          status: 'Available',
         );
 
-        // Save to Firestore
-         final createdRequest=  BookRequestService().createBookRequest(bookRequest);
-
-        // Show success message
+        await BookUploadService().createBookUpload(bookUpload);
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Book request submitted successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.bookUploadedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
+      } else {
+        final bookRequest = BookRequest(
+          userId: userId,
+          title: _titleController.text,
+          author: _authorController.text,
+          condition: _conditionController.text,
+          location: location,
+          imageUrl: imageUrl,
+          coordinates: coordinates,
+          createdAt: DateTime.now(),
+          status: 'Active',
+        );
 
-        // Clear form
-        _clearForm();
-      } catch (e) {
-        // Show error message
+        await BookRequestService().createBookRequest(bookRequest);
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error submitting request: $e'),
-            backgroundColor: Colors.red,
+            content: Text(AppLocalizations.of(context)!.bookRequestSubmitted),
+            backgroundColor: Colors.green,
           ),
         );
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
       }
+
+      _clearForm();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+}
+
 
   void _clearForm() {
     _titleController.clear();
@@ -202,10 +236,26 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context)!.requestabook,
-          style: TextStyle(fontWeight: FontWeight.bold),
+           _isUpload 
+          ? AppLocalizations.of(context)!.uploadabook
+          : AppLocalizations.of(context)!.requestabook,
+        style: TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
+             actions: [
+        IconButton(
+          icon: Icon(_isUpload ? LucideIcons.download : LucideIcons.upload),
+          onPressed: () {
+            setState(() {
+              _isUpload = !_isUpload;
+              _clearForm();
+            });
+          },
+          tooltip: _isUpload 
+            ? AppLocalizations.of(context)!.switchToRequest
+            : AppLocalizations.of(context)!.switchToUpload,
+        ),
+      ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -360,24 +410,38 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24.0),
-                ElevatedButton(
-                  onPressed: _submitRequest,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                   AppLocalizations.of(context)!.submitrequest,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                const SizedBox(height: 4.0),
+                         if (_isUpload)
+                Text(
+                  AppLocalizations.of(context)!.imageRequired,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
                   ),
                 ),
-              ],
+                    ElevatedButton(
+                onPressed: _isLoading 
+                  ? null 
+                  : () => _submitRequest(_isUpload),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: _isLoading
+                  ? CircularProgressIndicator()
+                  : Text(
+                      _isUpload
+                        ? AppLocalizations.of(context)!.uploadBook
+                        : AppLocalizations.of(context)!.submitRequest,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+              ),
+            ],
             ),
           ),
         ),
