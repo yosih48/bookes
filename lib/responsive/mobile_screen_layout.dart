@@ -76,14 +76,14 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
               backgroundColor: primaryColor),
           BottomNavigationBarItem(
               icon: Icon(
-                Icons.add,
+                Icons.book,
                 color: (_page == 2) ? primaryColor : secondaryColor,
               ),
               // label: AppLocalizations.of(context)!.table,
               backgroundColor: primaryColor),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.book,
+              Icons.add,
               color: (_page == 3) ? primaryColor : secondaryColor,
             ),
             // label: AppLocalizations.of(context)!.preferences,

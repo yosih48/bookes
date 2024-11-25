@@ -1,5 +1,6 @@
 import 'package:bookes/models/BookRequest.dart';
 import 'package:bookes/widgets/BookImageWidget.dart';
+import 'package:bookes/widgets/bookesCardDetailRow.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -81,21 +82,21 @@ Container(
                     const SizedBox(height: 8),
 
                     // Book Details
-                    _buildDetailRow(
+                    buildDetailRow(
                       Icons.person_outline,
                       '${AppLocalizations.of(context)!.author}: ${request.author}',
                       iconSize: 16,
                       fontSize: 14,
                     ),
                     const SizedBox(height: 4),
-                    _buildDetailRow(
+                    buildDetailRow(
                       Icons.inventory_2_outlined,
                       '${AppLocalizations.of(context)!.condition}: ${request.condition}',
                       iconSize: 16,
                       fontSize: 14,
                     ),
                     const SizedBox(height: 4),
-                    _buildDetailRow(
+                    buildDetailRow(
                       Icons.location_on_outlined,
                       '${AppLocalizations.of(context)!.location}: ${request.location}',
                       iconSize: 16,
@@ -104,7 +105,7 @@ Container(
 
                     if (distance != null) ...[
                       const SizedBox(height: 4),
-                      _buildDetailRow(
+                      buildDetailRow(
                         Icons.directions_walk,
                         '${AppLocalizations.of(context)!.distance}: ${distance!.toStringAsFixed(1)} km',
                         color: Theme.of(context).primaryColor,
@@ -153,7 +154,7 @@ Container(
                         return Row(
                           children: [
                             Expanded(
-                              child: _buildDetailRow(
+                              child: buildDetailRow(
                                 Icons.account_circle_outlined,
                                 '${AppLocalizations.of(context)!.by}: $userName',
                                 iconSize: 16,
@@ -231,35 +232,35 @@ Container(
     );
   }
 
-Widget _buildDetailRow(
-    IconData icon,
-    String text, {
-    Color? color,
-    double iconSize = 16,
-    double fontSize = 14,
-  }) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: iconSize,
-          color: color ?? Colors.grey[600],
-        ),
-        const SizedBox(width: 4),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: fontSize,
-              color: color ?? Colors.grey[600],
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
+// Widget _buildDetailRow(
+//     IconData icon,
+//     String text, {
+//     Color? color,
+//     double iconSize = 16,
+//     double fontSize = 14,
+//   }) {
+//     return Row(
+//       children: [
+//         Icon(
+//           icon,
+//           size: iconSize,
+//           color: color ?? Colors.grey[600],
+//         ),
+//         const SizedBox(width: 4),
+//         Expanded(
+//           child: Text(
+//             text,
+//             style: TextStyle(
+//               fontSize: fontSize,
+//               color: color ?? Colors.grey[600],
+//             ),
+//             maxLines: 1,
+//             overflow: TextOverflow.ellipsis,
+//           ),
+//         ),
+//       ],
+//     );
+//   }
 
   String _formatDate(DateTime date) {
     return DateFormat('MMM d, yyyy').format(date);
