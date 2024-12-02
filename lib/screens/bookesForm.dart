@@ -19,6 +19,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 class BookRequestScreen extends StatefulWidget {
   @override
   _BookRequestScreenState createState() => _BookRequestScreenState();
@@ -36,110 +37,110 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
   bool _isLoading = false;
   File? _selectedImage;
   final _storageService = StorageService();
-bool _isUpload = false;
-  
+  bool _isUpload = false;
+
   @override
   void dispose() {
     _locationController.dispose();
     super.dispose();
   }
 
-
-
- void _submitRequest(bool isUpload) async {
-  if (_selectedImage == null && isUpload) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context)!.imageRequired),
-        backgroundColor: Colors.red,
-      ),
-    );
-    return;
-  }
-
-  if (_formKey.currentState!.validate()) {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      String? imageUrl;
-      if (_selectedImage != null) {
-        imageUrl = await StorageService().uploadImage(
-          imageFile: _selectedImage!,
-          path: isUpload ? 'book_images/uploads' : 'book_images/requests',
-        );
-      }
-
-      final location = _selectedLocation;
-      final coordinates = _currentPosition != null
-          ? GeoPoint(_currentPosition!.latitude, _currentPosition!.longitude)
-          : const GeoPoint(0, 0);
-
-      if (isUpload) {
-        if (imageUrl == null) {
-          throw Exception('Image is required for book uploads');
-        }
-
-        final bookUpload = BookUpload(
-          userId: userId,
-          title: _titleController.text,
-          author: _authorController.text,
-          condition: _conditionController.text,
-          location: location,
-          imageUrl: imageUrl,
-          coordinates: coordinates,
-          createdAt: DateTime.now(),
-          status: 'Available',
-        );
-
-        await BookUploadService().createBookUpload(bookUpload);
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.bookUploadedSuccessfully),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        final bookRequest = BookRequest(
-          userId: userId,
-          title: _titleController.text,
-          author: _authorController.text,
-          condition: _conditionController.text,
-          location: location,
-          imageUrl: imageUrl,
-          coordinates: coordinates,
-          createdAt: DateTime.now(),
-          status: 'Active',
-        );
-
-        await BookRequestService().createBookRequest(bookRequest);
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.bookRequestSubmitted),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-
-      _clearForm();
-    } catch (e) {
+  void _submitRequest(bool isUpload) async {
+    if (_selectedImage == null && isUpload) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $e'),
+          content: Text(AppLocalizations.of(context)!.imageRequired),
           backgroundColor: Colors.red,
         ),
       );
-    } finally {
+      return;
+    }
+
+    if (_formKey.currentState!.validate()) {
       setState(() {
-        _isLoading = false;
+        _isLoading = true;
       });
+
+      try {
+        String? imageUrl;
+        if (_selectedImage != null) {
+          imageUrl = await StorageService().uploadImage(
+            imageFile: _selectedImage!,
+            path: isUpload ? 'book_images/uploads' : 'book_images/requests',
+          );
+        }
+
+        final location = _selectedLocation;
+        final coordinates = _currentPosition != null
+            ? GeoPoint(_currentPosition!.latitude, _currentPosition!.longitude)
+            : const GeoPoint(0, 0);
+
+        if (isUpload) {
+          if (imageUrl == null) {
+            throw Exception('Image is required for book uploads');
+          }
+
+          final bookUpload = BookUpload(
+            userId: userId,
+            title: _titleController.text,
+            author: _authorController.text,
+            condition: _conditionController.text,
+            location: location,
+            imageUrl: imageUrl,
+            coordinates: coordinates,
+            createdAt: DateTime.now(),
+            status: 'Available',
+          );
+
+          await BookUploadService().createBookUpload(bookUpload);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.bookUploadedSuccessfully),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          final bookRequest = BookRequest(
+            userId: userId,
+            title: _titleController.text,
+            author: _authorController.text,
+            condition: _conditionController.text,
+            location: location,
+            imageUrl: imageUrl,
+            requestType: 'GeneralRequest',
+            coordinates: coordinates,
+            createdAt: DateTime.now(),
+            status: 'Active',
+          );
+
+          await BookRequestService().createBookRequest(bookRequest);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.bookRequestSubmitted),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+
+        _clearForm();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        print(e);
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
-}
-
 
   void _clearForm() {
     _titleController.clear();
@@ -149,7 +150,7 @@ bool _isUpload = false;
     setState(() {
       _selectedLocation = '';
       _currentPosition = null;
-       _selectedImage = null;
+      _selectedImage = null;
     });
   }
 
@@ -236,26 +237,26 @@ bool _isUpload = false;
     return Scaffold(
       appBar: AppBar(
         title: Text(
-           _isUpload 
-          ? AppLocalizations.of(context)!.uploadabook
-          : AppLocalizations.of(context)!.requestabook,
-        style: TextStyle(fontWeight: FontWeight.bold),
+          _isUpload
+              ? AppLocalizations.of(context)!.uploadabook
+              : AppLocalizations.of(context)!.requestabook,
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
-             actions: [
-        IconButton(
-          icon: Icon(_isUpload ? LucideIcons.download : LucideIcons.upload),
-          onPressed: () {
-            setState(() {
-              _isUpload = !_isUpload;
-              _clearForm();
-            });
-          },
-          tooltip: _isUpload 
-            ? AppLocalizations.of(context)!.switchToRequest
-            : AppLocalizations.of(context)!.switchToUpload,
-        ),
-      ],
+        actions: [
+          IconButton(
+            icon: Icon(_isUpload ? LucideIcons.download : LucideIcons.upload),
+            onPressed: () {
+              setState(() {
+                _isUpload = !_isUpload;
+                _clearForm();
+              });
+            },
+            tooltip: _isUpload
+                ? AppLocalizations.of(context)!.switchToRequest
+                : AppLocalizations.of(context)!.switchToUpload,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -307,8 +308,7 @@ bool _isUpload = false;
                           ),
                           validator: (value) {
                             if (value?.isEmpty ?? true) {
-                              return AppLocalizations
-                                  .of(context)!
+                              return AppLocalizations.of(context)!
                                   .pleaseentertheauthor;
                             }
                             return null;
@@ -340,7 +340,8 @@ bool _isUpload = false;
                         TextFormField(
                           controller: _conditionController,
                           decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.bookcondition,
+                            labelText:
+                                AppLocalizations.of(context)!.bookcondition,
                             prefixIcon: const Icon(LucideIcons.book),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -405,43 +406,43 @@ bool _isUpload = false;
                           _selectedImage = file;
                         });
                       },
-                      placeholder: AppLocalizations.of(context)!.taptoaddbookimage,
+                      placeholder:
+                          AppLocalizations.of(context)!.taptoaddbookimage,
                       height: 200,
                     ),
                   ),
                 ),
                 const SizedBox(height: 4.0),
-                         if (_isUpload)
-                Text(
-                  AppLocalizations.of(context)!.imageRequired,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 12,
-                  ),
-                ),
-                    ElevatedButton(
-                onPressed: _isLoading 
-                  ? null 
-                  : () => _submitRequest(_isUpload),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: _isLoading
-                  ? CircularProgressIndicator()
-                  : Text(
-                      _isUpload
-                        ? AppLocalizations.of(context)!.uploadBook
-                        : AppLocalizations.of(context)!.submitRequest,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                if (_isUpload)
+                  Text(
+                    AppLocalizations.of(context)!.imageRequired,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
                     ),
-              ),
-            ],
+                  ),
+                ElevatedButton(
+                  onPressed:
+                      _isLoading ? null : () => _submitRequest(_isUpload),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? CircularProgressIndicator()
+                      : Text(
+                          _isUpload
+                              ? AppLocalizations.of(context)!.uploadBook
+                              : AppLocalizations.of(context)!.submitRequest,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+              ],
             ),
           ),
         ),

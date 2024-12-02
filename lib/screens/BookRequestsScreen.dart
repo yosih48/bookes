@@ -13,13 +13,14 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 class BookRequestsScreen extends StatefulWidget {
   @override
   _BookRequestsScreenState createState() => _BookRequestsScreenState();
 }
 
 class _BookRequestsScreenState extends State<BookRequestsScreen> {
-    String userId = FirebaseAuth.instance.currentUser!.uid;
+  String userId = FirebaseAuth.instance.currentUser!.uid;
   final BookRequestService _bookRequestService = BookRequestService();
   bool _showNearbyOnly = false;
   bool _isLoading = false;
@@ -58,6 +59,8 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
       } else {
         // Get all requests
         _requests = await _bookRequestService.getBookRequests();
+
+ 
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -66,6 +69,7 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
           backgroundColor: Colors.red,
         ),
       );
+      print(e);
     } finally {
       setState(() {
         _isLoading = false;
@@ -80,8 +84,9 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
- SnackBar(
-          content: Text(AppLocalizations.of(context)!.locationservicesaredisabled),
+        SnackBar(
+          content:
+              Text(AppLocalizations.of(context)!.locationservicesaredisabled),
         ),
       );
       return false;
@@ -92,8 +97,9 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(AppLocalizations.of(context)!.locationpermissionsaredenied),
+          SnackBar(
+            content: Text(
+                AppLocalizations.of(context)!.locationpermissionsaredenied),
           ),
         );
         return false;
@@ -113,7 +119,7 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: SegmentedButton<bool>(
-              segments:  [
+              segments: [
                 ButtonSegment<bool>(
                   value: false,
                   label: Text(AppLocalizations.of(context)!.all),
@@ -141,8 +147,11 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
           : Builder(
               builder: (context) {
                 // Filter active requests
-                final activeRequests =
-                    _requests.where((req) => req.status == 'Active').toList();
+                final activeRequests = _requests
+                    .where((req) => req.status == 'Active'
+                        && (req.requestType == 'GeneralRequest')
+                        )
+                    .toList();
 
                 if (activeRequests.isEmpty) {
                   return Center(
@@ -174,24 +183,26 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
                             : null,
                         onButtonPressed: () {
                           print('pressed');
-                                  final bookOffer = BookOffer(
-                            requestId: request.requestId!,// Assuming you have this from auth
+                          final bookOffer = BookOffer(
+                            requestId: request
+                                .requestId!, // Assuming you have this from auth
                             offererId: userId,
                             requesterId: request.userId,
                             status: "pending",
-              
+
                             createdAt: DateTime.now(),
                           );
 
                           // Save to Firestore/
-                          final createdRequest = BookOfferService()
-                              .createBookOffer(bookOffer);
+                          final createdRequest =
+                              BookOfferService().createBookOffer(bookOffer);
                         },
                       );
                     },
                   ),
                 );
-  },),
+              },
+            ),
     );
   }
 

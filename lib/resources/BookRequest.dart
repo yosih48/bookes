@@ -30,6 +30,7 @@ class BookRequestService {
     try {
       final querySnapshot = await _firestore
           .collection('bookRequests')
+          //  .where('requestType', isEqualTo: 'GeneralRequest')
           .orderBy('createdAt', descending: true)
           .get();
 

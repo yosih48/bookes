@@ -3,12 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class BookRequest {
   final String? requestId;
   final String userId;
+  final String? ownerId;
   final String title;
   final String author;
   final String condition;
   final String location;
   final GeoPoint coordinates; // For storing latitude and longitude
   final DateTime createdAt;
+  final String requestType;
     final String? imageUrl; 
     final String status;
 
@@ -16,11 +18,13 @@ class BookRequest {
     this.requestId,
     required this.userId,
     required this.title,
+     this.ownerId,
     required this.author,
     required this.condition,
     required this.location,
     required this.coordinates,
     required this.createdAt,
+   required  this.requestType,
      this.imageUrl,
          required this.status,
   });
@@ -28,11 +32,13 @@ class BookRequest {
   BookRequest copyWith({
     String? requestId,
     String? userId,
+    String? ownerId,
     String? title,
     String? author,
     String? condition,
     String? location,
     String? imageUrl,
+    String? requestType,
     GeoPoint? coordinates,
     DateTime? createdAt,
     String? status,
@@ -41,6 +47,8 @@ class BookRequest {
       requestId: requestId ?? this.requestId,
       userId: userId ?? this.userId,
       title: title ?? this.title,
+      ownerId: ownerId ?? this.ownerId,
+      requestType: requestType ?? this.requestType,
       author: author ?? this.author,
       condition: condition ?? this.condition,
       location: location ?? this.location,
@@ -59,6 +67,8 @@ class BookRequest {
       'requestId': requestId,
       'userId': userId,
       'title': title,
+      'ownerId': ownerId,
+      'requestType': requestType,
       'author': author,
       'condition': condition,
       'location': location,
@@ -76,6 +86,8 @@ class BookRequest {
           requestId: doc.id, // Assign the provided requestId
       userId: data['userId'],
       title: data['title'],
+      ownerId: data['ownerId'] ?? 'null',
+      requestType: data['requestType'],
       author: data['author'],
       condition: data['condition'],
       location: data['location'],
