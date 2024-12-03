@@ -124,7 +124,8 @@
     "nearbyBooks": "nearby Books",
     "viewOnMap": "view On Map",
     "errorLoadingBooks": "error Loading Books",
-    "noBooksAvailable": "no Books Available"
+    "noBooksAvailable": "no Books Available",
+    "pendingOwner": "Pending Owner"
     
 
 

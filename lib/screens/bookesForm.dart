@@ -1,10 +1,13 @@
 import 'dart:io';
 
 import 'package:bookes/models/BookRequest.dart';
+import 'package:bookes/models/bookOffer.dart';
 import 'package:bookes/models/bookUpload.dart';
 import 'package:bookes/resources/BookRequest.dart';
 import 'package:bookes/resources/StorageService.dart';
+import 'package:bookes/resources/bookOffer.dart';
 import 'package:bookes/resources/bookUpload.dart';
+import 'package:bookes/resources/locationService.dart';
 import 'package:bookes/widgets/ImagePicker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +41,22 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
   File? _selectedImage;
   final _storageService = StorageService();
   bool _isUpload = false;
+
+  final LocationService _locationService = LocationService();
+  String _location = 'Unknown';
+
+  void _fetchLocation() async {
+    String? location = await _locationService.getCurrentLocation(context);
+    if (location != null) {
+      setState(() {
+        _location = location;
+           _locationController.text = location;
+      });
+
+    } else {
+      print('Failed to fetch location');
+    }
+  }
 
   @override
   void dispose() {
@@ -80,20 +99,32 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
             throw Exception('Image is required for book uploads');
           }
 
+        final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+       final docRef = _firestore.collection('available_books').doc();
           final bookUpload = BookUpload(
             userId: userId,
             title: _titleController.text,
             author: _authorController.text,
             condition: _conditionController.text,
-            location: location,
+            location: _locationController.text,
             imageUrl: imageUrl,
             coordinates: coordinates,
             createdAt: DateTime.now(),
             status: 'Available',
+             availableBookId: docRef.id 
+          );
+          final bookOffer = BookOffer(
+            requestId: docRef.id, // Assuming you have this from auth
+            offererId: userId,
+            requesterId: "pending",
+            status: "pending",
+            offerType: 'AvailableOffer',
+            createdAt: DateTime.now(),
           );
 
+         
           await BookUploadService().createBookUpload(bookUpload);
-
+          await BookOfferService().createBookOffer(bookOffer);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content:
@@ -107,7 +138,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
             title: _titleController.text,
             author: _authorController.text,
             condition: _conditionController.text,
-            location: location,
+            location: _locationController.text,
             imageUrl: imageUrl,
             requestType: 'GeneralRequest',
             coordinates: coordinates,
@@ -154,83 +185,83 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
     });
   }
 
-  Future<bool> _handleLocationPermission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  // Future<bool> _handleLocationPermission() async {
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text('Location services are disabled. Please enable them.')),
-      );
-      return false;
-    }
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //           content:
+  //               Text('Location services are disabled. Please enable them.')),
+  //     );
+  //     return false;
+  //   }
 
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Location permissions are denied.')),
-        );
-        return false;
-      }
-    }
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission == LocationPermission.denied) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Location permissions are denied.')),
+  //       );
+  //       return false;
+  //     }
+  //   }
 
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Location permissions are permanently denied.'),
-        ),
-      );
-      return false;
-    }
+  //   if (permission == LocationPermission.deniedForever) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Location permissions are permanently denied.'),
+  //       ),
+  //     );
+  //     return false;
+  //   }
 
-    return true;
-  }
+  //   return true;
+  // }
 
-  Future<void> _getCurrentLocation() async {
-    print('_getCurrentLocation');
-    final hasPermission = await _handleLocationPermission();
+  // Future<void> getCurrentLocation() async {
+  //   print('_getCurrentLocation');
+  //   final hasPermission = await _handleLocationPermission();
 
-    if (!hasPermission) return;
+  //   if (!hasPermission) return;
 
-    try {
-      print('hasPermission');
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+  //   try {
+  //     print('hasPermission');
+  //     Position position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high,
+  //     );
 
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
+  //     List<Placemark> placemarks = await placemarkFromCoordinates(
+  //       position.latitude,
+  //       position.longitude,
+  //     );
 
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks[0];
-        setState(() {
-          _currentPosition = position;
-          print('_currentPosition: ${_currentPosition}');
-          // Only store city and neighborhood for privacy
-          _selectedLocation =
-              '${place.locality ?? ''}, ${place.subLocality ?? ''}';
-          _locationController.text = _selectedLocation;
-          print('_selectedLocation: ${_selectedLocation}');
-          print('_locationController.text: ${_locationController.text}');
-        });
-      } else {
-        print('placemarks is emptey');
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
+  //     if (placemarks.isNotEmpty) {
+  //       Placemark place = placemarks[0];
+  //       setState(() {
+  //         _currentPosition = position;
+  //         print('_currentPosition: ${_currentPosition}');
+  //         // Only store city and neighborhood for privacy
+  //         _selectedLocation =
+  //             '${place.locality ?? ''}, ${place.subLocality ?? ''}';
+  //         _locationController.text = _selectedLocation;
+  //         print('_selectedLocation: ${_selectedLocation}');
+  //         print('_locationController.text: ${_locationController.text}');
+  //       });
+  //     } else {
+  //       print('placemarks is emptey');
+  //     }
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //   }
+  // }
 
-  void _selectLocation() async {
-    await _getCurrentLocation();
-  }
+  // void _selectLocation() async {
+  //   await _fetchLocation();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -359,7 +390,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                         ),
                         const SizedBox(height: 16.0),
                         InkWell(
-                          onTap: _selectLocation,
+                          onTap: _fetchLocation,
                           child: AbsorbPointer(
                             child: TextFormField(
                               controller: _locationController,
@@ -369,7 +400,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                                 prefixIcon: const Icon(LucideIcons.mapPin),
                                 suffixIcon: IconButton(
                                   icon: const Icon(LucideIcons.locate),
-                                  onPressed: _getCurrentLocation,
+                                  onPressed: _fetchLocation,
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),

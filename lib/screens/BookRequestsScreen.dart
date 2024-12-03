@@ -189,7 +189,7 @@ class _BookRequestsScreenState extends State<BookRequestsScreen> {
                             offererId: userId,
                             requesterId: request.userId,
                             status: "pending",
-
+                            offerType: 'DirectOffer',
                             createdAt: DateTime.now(),
                           );
 

@@ -20,28 +20,64 @@ class OfferCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<DocumentSnapshot>>(
+return FutureBuilder<List<DocumentSnapshot>>(
       future: Future.wait([
         // Fetch user data
         FirebaseFirestore.instance
             .collection('users')
-            .doc(isLenderView ? offer['requesterId'] : offer['offererId'])
+            .doc(offer['offerType'] != "AvailableOffer"
+                ? isLenderView
+                    ? offer['requesterId']
+                    : offer['offererId']
+                : offer['offererId'])
             .get(),
-        // Fetch book request data
+        // Fetch book data based on offer type
         FirebaseFirestore.instance
-            .collection('bookRequests')
-            .doc(offer['requestId'])
+            .collection(offer['offerType'] == "AvailableOffer"
+                ? 'available_books'
+                : 'bookRequests')
+            .doc(offer['requestId']) // For direct offers
             .get(),
       ]),
       builder: (context, AsyncSnapshot<List<DocumentSnapshot>> snapshots) {
-        if (!snapshots.hasData) {
+        if (snapshots.connectionState == ConnectionState.waiting) {
           return const Card(
             child: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final userData = snapshots.data![0].data() as Map<String, dynamic>;
-        final bookRequest = snapshots.data![1].data() as Map<String, dynamic>;
+        if (snapshots.hasError) {
+          return Card(
+            child: Center(
+              child: Text('Error: ${snapshots.error}'),
+            ),
+          );
+        }
+
+        if (!snapshots.hasData ||
+            snapshots.data == null ||
+            snapshots.data!.length != 2 ||
+            !snapshots.data![0].exists ||
+            !snapshots.data![1].exists) {
+          return const Card(
+            child: Center(
+              child: Text('No data available'),
+            ),
+          );
+        }
+
+        // Safely cast the data
+        final userData = snapshots.data![0].data() as Map<String, dynamic>?;
+        final bookData = snapshots.data![1].data() as Map<String, dynamic>?;
+
+        if (userData == null || bookData == null) {
+          return const Card(
+            child: Center(
+              child: Text('Invalid data format'),
+            ),
+          );
+        }
+      
 
         return Card(
           elevation: 2,
@@ -82,7 +118,7 @@ class OfferCard extends StatelessWidget {
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  bookRequest['title'] ?? 'Unknown Book',
+                                  bookData['title'] ?? 'Unknown Book',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontSize: 14,

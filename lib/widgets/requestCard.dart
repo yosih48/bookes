@@ -70,6 +70,7 @@ class RequestCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
+                    if(request['requestType'] != 'DirectRequest')
                     Row(
                       children: [
                         Icon(Icons.people_outline,
@@ -84,7 +85,8 @@ class RequestCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (request['status'] == 'Active')
+              if (request['status'] == 'Active' ||
+                  request['status'] == 'Pending Owner')
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
@@ -131,6 +133,10 @@ class RequestCard extends StatelessWidget {
       case 'cancelled':
         color = Colors.red;
         label = AppLocalizations.of(context)!.cancelled;
+        break;
+      case 'Pending Owner':
+        color = Colors.orange;
+        label = AppLocalizations.of(context)!.pendingOwner;
         break;
       default:
         color = Colors.grey;

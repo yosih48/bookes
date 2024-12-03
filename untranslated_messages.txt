@@ -25,6 +25,7 @@
     "nearbyBooks",
     "viewOnMap",
     "errorLoadingBooks",
-    "noBooksAvailable"
+    "noBooksAvailable",
+    "pendingOwner"
   ]
 }

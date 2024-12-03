@@ -1,13 +1,30 @@
+import 'package:bookes/models/BookRequest.dart';
+import 'package:bookes/resources/BookRequest.dart';
+import 'package:bookes/resources/locationService.dart';
 import 'package:bookes/widgets/bookCard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:google_api_headers/google_api_headers.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-class MainDashboard extends StatelessWidget {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+class MainDashboard extends StatefulWidget {
+  @override
+  State<MainDashboard> createState() => _MainDashboardState();
+}
+
+class _MainDashboardState extends State<MainDashboard> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String userId = FirebaseAuth.instance.currentUser!.uid;
+  String _location = 'Unknown';
+  String _selectedLocation = '';
+  Position? _currentPosition;
+  final LocationService _locationService = LocationService();
   // Function to calculate distance (you'll need to implement this based on user's location)
   String _calculateDistance(GeoPoint bookLocation, GeoPoint? userLocation) {
     // Implement distance calculation logic here
@@ -15,10 +32,27 @@ class MainDashboard extends StatelessWidget {
     return "0.5 mi away";
   }
 
+  void _fetchLocation() async {
+    String? location = await _locationService.getCurrentLocation(context);
+    if (location != null) {
+      setState(() {
+        _location = location;
+      });
+    } else {
+      print('Failed to fetch location');
+    }
+  }
 
-  void _handleBookRequest(BuildContext context, String bookId, Map<String, dynamic> bookData) async {
-    // Implement your book request logic here
-    // You might want to show a dialog or navigate to a request screen
+  void _handleBookRequest(BuildContext context, String bookId,
+      Map<String, dynamic> bookData) async {
+    print(bookData);
+    print(bookData['title']);
+
+    final location = _selectedLocation;
+    final coordinates = _currentPosition != null
+        ? GeoPoint(_currentPosition!.latitude, _currentPosition!.longitude)
+        : const GeoPoint(0, 0);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -30,8 +64,30 @@ class MainDashboard extends StatelessWidget {
             child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
-            onPressed: () {
-              // Implement request logic
+            onPressed: () async {
+              print(bookData);
+              print(bookData['title']);
+              final bookRequest = BookRequest(
+                  userId: userId,
+                  title: bookData['title'],
+                  author: bookData['author'],
+                  condition: bookData['condition'],
+                  location: _location,
+                  imageUrl: bookData[' imageUrl'],
+                  requestType: 'DirectRequest',
+                  coordinates: coordinates,
+                  createdAt: DateTime.now(),
+                  status: 'Pending Owner',
+                  ownerId: bookData['userId']);
+              await BookRequestService().createBookRequest(bookRequest);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content:
+                      Text(AppLocalizations.of(context)!.bookRequestSubmitted),
+                  backgroundColor: Colors.green,
+                ),
+              );
               Navigator.pop(context);
             },
             child: Text(AppLocalizations.of(context)!.confirm),
@@ -41,12 +97,6 @@ class MainDashboard extends StatelessWidget {
     );
   }
 
-
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +104,7 @@ class MainDashboard extends StatelessWidget {
         title: Text('BookedUp'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(4.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -106,7 +156,8 @@ class MainDashboard extends StatelessWidget {
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(
-                      child: Text(AppLocalizations.of(context)!.errorLoadingBooks),
+                      child:
+                          Text(AppLocalizations.of(context)!.errorLoadingBooks),
                     );
                   }
 
@@ -129,7 +180,8 @@ class MainDashboard extends StatelessWidget {
 
                   return ListView.separated(
                     itemCount: snapshot.data!.docs.length,
-                    separatorBuilder: (context, index) => SizedBox(height: 16.0),
+                    separatorBuilder: (context, index) =>
+                        SizedBox(height:8.0),
                     itemBuilder: (context, index) {
                       final doc = snapshot.data!.docs[index];
                       final data = doc.data() as Map<String, dynamic>;
@@ -137,7 +189,8 @@ class MainDashboard extends StatelessWidget {
                       return BookCard(
                         bookId: doc.id,
                         data: data,
-                        onRequestPress: () => _handleBookRequest(context, doc.id, data),
+                        onRequestPress: () =>
+                            _handleBookRequest(context, doc.id, data),
                       );
                     },
                   );
@@ -169,5 +222,4 @@ class MainDashboard extends StatelessWidget {
       ),
     );
   }
-
 }

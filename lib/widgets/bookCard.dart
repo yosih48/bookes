@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 class BookCard extends StatelessWidget {
   final String bookId;
   final Map<String, dynamic> data;
@@ -30,16 +31,16 @@ class BookCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Book Image
-        ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: SizedBox(
-                  width: 80,
-                  height: 120,
-                  child: BookImageWidget(imageUrl: data['imageUrl']),
-                ),
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: SizedBox(
+              width: 80,
+              height: 120,
+              child: BookImageWidget(imageUrl: data['imageUrl']),
+            ),
+          ),
           SizedBox(width: 16.0),
-          
+
           // Book Details
           Expanded(
             child: Column(
@@ -51,11 +52,11 @@ class BookCard extends StatelessWidget {
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,
                   ),
-                         maxLines: 2,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 8.0),
-                   buildDetailRow(
+                buildDetailRow(
                   Icons.person_outline,
                   '${AppLocalizations.of(context)!.author}: ${data['author']}',
                   iconSize: 16,
@@ -63,21 +64,21 @@ class BookCard extends StatelessWidget {
                 ),
                 // Text('by ${data['author'] ?? 'Unknown Author'}'),
                 SizedBox(height: 4.0),
-                       buildDetailRow(
+                buildDetailRow(
                   Icons.inventory_2_outlined,
                   '${AppLocalizations.of(context)!.condition}: ${data['condition']}',
                   iconSize: 16,
                   fontSize: 14,
                 ),
-           
+
                 SizedBox(height: 4.0),
-                      buildDetailRow(
+                buildDetailRow(
                   Icons.location_on_outlined,
                   '${AppLocalizations.of(context)!.location}: ${data['location']}',
                   iconSize: 16,
                   fontSize: 14,
                 ),
-                     const SizedBox(height: 4),
+                const SizedBox(height: 4),
                 buildDetailRow(
                   Icons.lock_clock,
                   _formatDate(data['createdAt'] as Timestamp),
@@ -86,7 +87,7 @@ class BookCard extends StatelessWidget {
                   fontSize: 14,
                 ),
                 SizedBox(height: 8.0),
-                     const Divider(),
+                const Divider(),
                 const SizedBox(height: 4),
                 FutureBuilder<DocumentSnapshot>(
                   future: FirebaseFirestore.instance
@@ -156,7 +157,7 @@ class BookCard extends StatelessWidget {
               ],
             ),
           ),
-                       const SizedBox(width: 16.0),
+          const SizedBox(width: 16.0),
 
           // Right side - Status image and action button
           Column(
@@ -181,10 +182,9 @@ class BookCard extends StatelessWidget {
 
               // Action Button
               SizedBox(
-                width: 130, // Fixed width for button
+                width: 100, // Fixed width for button
                 child: ElevatedButton(
-                  onPressed: 
-                  onRequestPress,
+                  onPressed: onRequestPress,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(

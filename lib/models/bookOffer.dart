@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class BookOffer {
   final String requestId;
   final String offererId;
+  final String offerType;
   final String requesterId;
   final String status; // expected values: "pending", "accepted", "declined"
   // final String message;
@@ -12,6 +13,7 @@ class BookOffer {
   BookOffer({
     required this.requestId,
     required this.offererId,
+    required this.offerType,
     required this.requesterId,
     required this.status,
     // required this.message,
@@ -23,6 +25,7 @@ class BookOffer {
     return {
       'requestId': requestId,
       'offererId': offererId,
+      'offerType': offerType,
       'requesterId': requesterId,
       'status': status,
       'createdAt': createdAt,
@@ -32,6 +35,7 @@ class BookOffer {
     return BookOffer(
       requestId: map['requestId'] as String,
       offererId: map['offererId'] as String,
+      offerType: map['offerType'] as String,
       requesterId: map['requesterId'] as String,
       status: map['status'] as String,
       createdAt: (map['createdAt'] as Timestamp).toDate(),
@@ -43,6 +47,7 @@ class BookOffer {
   factory BookOffer.fromJson(Map<String, dynamic> json) {
     return BookOffer(
       requestId: json['requestId'] as String,
+      offerType: json['offerType'] as String,
       offererId: json['offererId'] as String,
       requesterId: json['requesterId'] as String,
       status: json['status'] as String,
@@ -60,6 +65,7 @@ class BookOffer {
     return {
       'requestId': requestId,
       'offererId': offererId,
+      'offerType': offerType,
       'requesterId': requesterId,
       'status': status,
       // 'message': message,
