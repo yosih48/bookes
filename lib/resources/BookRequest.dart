@@ -5,25 +5,40 @@ import 'package:geolocator/geolocator.dart';
 class BookRequestService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<BookRequest> createBookRequest(BookRequest request) async {
+  Future<BookRequest> createBookRequest(
+      BookRequest request, bool isDirect) async {
 
-        try {
-      // Generate a new document reference with an automatic ID
-      final docRef = _firestore.collection('bookRequests').doc();
+    try {
+      if (!isDirect) {
+        // Generate a new document reference with an automatic ID
+        final docRef = _firestore.collection('bookRequests').doc();
 
-      // Set the generated ID as the requestId in the BookRequest object
-      request = request.copyWith(requestId: docRef.id);
+        // Set the generated ID as the requestId in the BookRequest object
+        request = request.copyWith(requestId: docRef.id);
 
-      // Save the BookRequest to Firestore with the custom ID
-      await docRef.set(request.toMap());
+        // Save the BookRequest to Firestore with the custom ID
+        await docRef.set(request.toMap());
 
-      // Fetch the saved document to return it as a BookRequest object
-      final docSnapshot = await docRef.get();
-      return BookRequest.fromFirestore(docSnapshot);
+        // Fetch the saved document to return it as a BookRequest object
+        final docSnapshot = await docRef.get();
+        return BookRequest.fromFirestore(docSnapshot);
+      }else{
+              final docRef =
+            _firestore.collection('bookRequests').doc(request.requestId);
+
+        // Save the BookRequest to Firestore with the specified ID
+        await docRef.set(request.toMap());
+
+        // Fetch and return the saved document
+        final docSnapshot = await docRef.get();
+        return BookRequest.fromFirestore(docSnapshot);
+
+        // await _firestore.collection('bookRequests').add(request.toMap());
+        //   return request;
+      }
     } catch (e) {
       throw 'Failed to create book request: $e';
     }
-  
   }
 
   Future<List<BookRequest>> getBookRequests() async {
@@ -51,7 +66,6 @@ class BookRequestService {
       final querySnapshot = await _firestore
           .collection('bookRequests')
           .orderBy('createdAt', descending: true)
-          
           .get();
 
       // Filter requests by distance

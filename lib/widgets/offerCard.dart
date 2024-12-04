@@ -25,11 +25,14 @@ return FutureBuilder<List<DocumentSnapshot>>(
         // Fetch user data
         FirebaseFirestore.instance
             .collection('users')
-            .doc(offer['offerType'] != "AvailableOffer"
+            .doc(
+              offer['offerType'] != "AvailableOffer"
                 ? isLenderView
-                    ? offer['requesterId']
+                    ? 
+                    offer['requesterId']
                     : offer['offererId']
-                : offer['offererId'])
+                : offer['offererId']
+                )
             .get(),
         // Fetch book data based on offer type
         FirebaseFirestore.instance
@@ -170,7 +173,11 @@ return FutureBuilder<List<DocumentSnapshot>>(
                   ],
                 ),
               ),
-              if (offer['status'] == 'pending' && !isLenderView)
+              if (offer['status'] == 'pending' && !isLenderView ||
+              offer['offerType'] == 'AvailableOffer' && offer['requesterId'] != 'pending'
+              &&
+                      offer['status'] == 'pending'
+              )
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(

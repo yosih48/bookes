@@ -9,10 +9,13 @@ class OffersTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(userId);
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('bookOffers')
           .where('requesterId', isEqualTo: userId)
+          .where('offerType', isEqualTo: 'DirectOffer')
+          // .where('offerType', isEqualTo: 'AvailableOffer')
           .orderBy('createdAt', descending: true)
           .snapshots(),
       builder: (context, snapshot) {

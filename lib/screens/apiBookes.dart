@@ -1,5 +1,6 @@
 import 'package:bookes/models/BookRequest.dart';
 import 'package:bookes/resources/BookRequest.dart';
+import 'package:bookes/resources/bookOffer.dart';
 import 'package:bookes/resources/locationService.dart';
 import 'package:bookes/widgets/bookCard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -67,8 +68,12 @@ class _MainDashboardState extends State<MainDashboard> {
             onPressed: () async {
               print(bookData);
               print(bookData['title']);
+              print(bookData['availableBookId']);
+              final bool isDirect = true;
+
               final bookRequest = BookRequest(
                   userId: userId,
+                   requestId: bookData['availableBookId'],
                   title: bookData['title'],
                   author: bookData['author'],
                   condition: bookData['condition'],
@@ -79,8 +84,9 @@ class _MainDashboardState extends State<MainDashboard> {
                   createdAt: DateTime.now(),
                   status: 'Pending Owner',
                   ownerId: bookData['userId']);
-              await BookRequestService().createBookRequest(bookRequest);
-
+              await BookRequestService().createBookRequest(bookRequest, isDirect);
+               await BookOfferService().updateBookOfferRequesterId(
+                  bookData['availableBookId'], userId);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content:
@@ -180,8 +186,7 @@ class _MainDashboardState extends State<MainDashboard> {
 
                   return ListView.separated(
                     itemCount: snapshot.data!.docs.length,
-                    separatorBuilder: (context, index) =>
-                        SizedBox(height:8.0),
+                    separatorBuilder: (context, index) => SizedBox(height: 8.0),
                     itemBuilder: (context, index) {
                       final doc = snapshot.data!.docs[index];
                       final data = doc.data() as Map<String, dynamic>;

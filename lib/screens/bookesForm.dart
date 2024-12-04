@@ -133,6 +133,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
             ),
           );
         } else {
+           final bool isDirect = false;
           final bookRequest = BookRequest(
             userId: userId,
             title: _titleController.text,
@@ -146,7 +147,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
             status: 'Active',
           );
 
-          await BookRequestService().createBookRequest(bookRequest);
+          await BookRequestService().createBookRequest(bookRequest, isDirect);
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

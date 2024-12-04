@@ -25,4 +25,29 @@ class BookOfferService {
     }
   }
 
+Future<void> updateBookOfferRequesterId(
+      String requestId, String userId) async {
+    try {
+      // Query the bookOffers collection to find the matching document
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('bookOffers')
+          .where('requestId', isEqualTo: requestId)
+          .get();
+
+      // Check if we found a matching document
+      if (querySnapshot.docs.isNotEmpty) {
+        // Get the first matching document's reference
+        DocumentReference offerRef = querySnapshot.docs.first.reference;
+
+        // Update the requesterId field
+        await offerRef.update({'requesterId': userId});
+      } else {
+        print('No matching book offer found with requestId: $requestId');
+      }
+    } catch (e) {
+      print('Error updating book offer: $e');
+      throw e;
+    }
+  }
+
 }
