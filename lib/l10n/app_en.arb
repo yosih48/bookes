@@ -125,7 +125,9 @@
     "viewOnMap": "view On Map",
     "errorLoadingBooks": "error Loading Books",
     "noBooksAvailable": "no Books Available",
-    "pendingOwner": "Pending Owner"
+    "pendingOwner": "Pending Owner",
+    "bookOwner": "book Owner",
+    "bookDetails": "book Details"
     
 
 

@@ -9,7 +9,7 @@ class BookRequestService {
       BookRequest request, bool isDirect) async {
 
     try {
-      if (!isDirect) {
+      // if (!isDirect) {
         // Generate a new document reference with an automatic ID
         final docRef = _firestore.collection('bookRequests').doc();
 
@@ -22,20 +22,20 @@ class BookRequestService {
         // Fetch the saved document to return it as a BookRequest object
         final docSnapshot = await docRef.get();
         return BookRequest.fromFirestore(docSnapshot);
-      }else{
-              final docRef =
-            _firestore.collection('bookRequests').doc(request.requestId);
+//       }else{
+//               final docRef =
+//             _firestore.collection('bookRequests').doc();
+// request = request.copyWith(requestId: docRef.id);
+//         // Save the BookRequest to Firestore with the specified ID
+//         await docRef.set(request.toMap());
 
-        // Save the BookRequest to Firestore with the specified ID
-        await docRef.set(request.toMap());
+//         // Fetch and return the saved document
+//         final docSnapshot = await docRef.get();
+//         return BookRequest.fromFirestore(docSnapshot);
 
-        // Fetch and return the saved document
-        final docSnapshot = await docRef.get();
-        return BookRequest.fromFirestore(docSnapshot);
-
-        // await _firestore.collection('bookRequests').add(request.toMap());
-        //   return request;
-      }
+//         // await _firestore.collection('bookRequests').add(request.toMap());
+//         //   return request;
+//       }
     } catch (e) {
       throw 'Failed to create book request: $e';
     }

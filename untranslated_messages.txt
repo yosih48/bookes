@@ -26,6 +26,8 @@
     "viewOnMap",
     "errorLoadingBooks",
     "noBooksAvailable",
-    "pendingOwner"
+    "pendingOwner",
+    "bookOwner",
+    "bookDetails"
   ]
 }

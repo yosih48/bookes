@@ -36,8 +36,10 @@ final bool isLenderView;
                   .doc(isLenderView ? transaction['borrowerId'] : transaction['lenderId'])
                   .get(),
               // Fetch book request data
+              
               FirebaseFirestore.instance
                   .collection('bookRequests')
+                  
                   .doc(transaction['requestId'])
                   .get(),
             ]),

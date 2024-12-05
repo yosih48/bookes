@@ -4,6 +4,7 @@ class BookRequest {
   final String? requestId;
   final String userId;
   final String? ownerId;
+  final String? availableBookId;
   final String title;
   final String author;
   final String condition;
@@ -19,6 +20,7 @@ class BookRequest {
     required this.userId,
     required this.title,
      this.ownerId,
+     this.availableBookId,
     required this.author,
     required this.condition,
     required this.location,
@@ -33,6 +35,7 @@ class BookRequest {
     String? requestId,
     String? userId,
     String? ownerId,
+    String? availableBookId,
     String? title,
     String? author,
     String? condition,
@@ -48,6 +51,7 @@ class BookRequest {
       userId: userId ?? this.userId,
       title: title ?? this.title,
       ownerId: ownerId ?? this.ownerId,
+      availableBookId: availableBookId ?? this.availableBookId,
       requestType: requestType ?? this.requestType,
       author: author ?? this.author,
       condition: condition ?? this.condition,
@@ -68,6 +72,7 @@ class BookRequest {
       'userId': userId,
       'title': title,
       'ownerId': ownerId,
+      'availableBookId': availableBookId,
       'requestType': requestType,
       'author': author,
       'condition': condition,
@@ -87,6 +92,7 @@ class BookRequest {
       userId: data['userId'],
       title: data['title'],
       ownerId: data['ownerId'] ?? 'null',
+      availableBookId: data['availableBookId'] ?? 'null',
       requestType: data['requestType'],
       author: data['author'],
       condition: data['condition'],

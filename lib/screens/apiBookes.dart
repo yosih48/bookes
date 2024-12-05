@@ -2,6 +2,7 @@ import 'package:bookes/models/BookRequest.dart';
 import 'package:bookes/resources/BookRequest.dart';
 import 'package:bookes/resources/bookOffer.dart';
 import 'package:bookes/resources/locationService.dart';
+import 'package:bookes/screens/bookDetailsScreen.dart';
 import 'package:bookes/widgets/bookCard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,86 +23,7 @@ class MainDashboard extends StatefulWidget {
 class _MainDashboardState extends State<MainDashboard> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String userId = FirebaseAuth.instance.currentUser!.uid;
-  String _location = 'Unknown';
-  String _selectedLocation = '';
-  Position? _currentPosition;
-  final LocationService _locationService = LocationService();
-  // Function to calculate distance (you'll need to implement this based on user's location)
-  String _calculateDistance(GeoPoint bookLocation, GeoPoint? userLocation) {
-    // Implement distance calculation logic here
-    // For now returning placeholder
-    return "0.5 mi away";
-  }
 
-  void _fetchLocation() async {
-    String? location = await _locationService.getCurrentLocation(context);
-    if (location != null) {
-      setState(() {
-        _location = location;
-      });
-    } else {
-      print('Failed to fetch location');
-    }
-  }
-
-  void _handleBookRequest(BuildContext context, String bookId,
-      Map<String, dynamic> bookData) async {
-    print(bookData);
-    print(bookData['title']);
-
-    final location = _selectedLocation;
-    final coordinates = _currentPosition != null
-        ? GeoPoint(_currentPosition!.latitude, _currentPosition!.longitude)
-        : const GeoPoint(0, 0);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.requestBook),
-        content: Text(AppLocalizations.of(context)!.confirmBookRequest),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              print(bookData);
-              print(bookData['title']);
-              print(bookData['availableBookId']);
-              final bool isDirect = true;
-
-              final bookRequest = BookRequest(
-                  userId: userId,
-                   requestId: bookData['availableBookId'],
-                  title: bookData['title'],
-                  author: bookData['author'],
-                  condition: bookData['condition'],
-                  location: _location,
-                  imageUrl: bookData[' imageUrl'],
-                  requestType: 'DirectRequest',
-                  coordinates: coordinates,
-                  createdAt: DateTime.now(),
-                  status: 'Pending Owner',
-                  ownerId: bookData['userId']);
-              await BookRequestService().createBookRequest(bookRequest, isDirect);
-               await BookOfferService().updateBookOfferRequesterId(
-                  bookData['availableBookId'], userId);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content:
-                      Text(AppLocalizations.of(context)!.bookRequestSubmitted),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              Navigator.pop(context);
-            },
-            child: Text(AppLocalizations.of(context)!.confirm),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -194,8 +116,15 @@ class _MainDashboardState extends State<MainDashboard> {
                       return BookCard(
                         bookId: doc.id,
                         data: data,
-                        onRequestPress: () =>
-                            _handleBookRequest(context, doc.id, data),
+                        onRequestPress: () {
+                            // _handleBookRequest(context,doc.id,  data);
+                                 Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookDetailsScreen(book: data),
+              ),
+            );
+                        }
                       );
                     },
                   );
