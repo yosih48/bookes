@@ -21,36 +21,51 @@ final bool isLenderView;
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: [
-          ListTile(
-             title: FutureBuilder<List<DocumentSnapshot>>(
-            future: Future.wait([
-              // Fetch user data
-              FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(isLenderView ? transaction['borrowerId'] : transaction['lenderId'])
-                  .get(),
-              // Fetch book request data
-              
-              FirebaseFirestore.instance
-                  .collection('bookRequests')
-                  
-                  .doc(transaction['requestId'])
-                  .get(),
-            ]),
-            builder: (context, AsyncSnapshot<List<DocumentSnapshot>> snapshots) {
+Widget build(BuildContext context) {
+  return Card(
+    elevation: 2,
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    child: Column(
+      children: [
+        ListTile(
+          title: FutureBuilder(
+future: Future.wait([
+  // Fetch user data
+  FirebaseFirestore.instance
+      .collection('users')
+      .doc(isLenderView ? transaction['borrowerId'] : transaction['lenderId'])
+      .get(),
+  // Fetch book request data with conditional query
+  Future(() async {
+    final directRequests = await FirebaseFirestore.instance
+        .collection('bookRequests')
+        .where('requestType', isEqualTo: "DirectRequest")
+        .where('availableBookId', isEqualTo: transaction['requestId'])
+        .get();
+        
+    final otherRequests = await FirebaseFirestore.instance
+        .collection('bookRequests')
+        .where('requestType', isNotEqualTo: "DirectRequest")
+        .where('requestId', isEqualTo: transaction['requestId'])
+        .get();
+
+    // Combine results from both queries
+    final allDocs = [...directRequests.docs, ...otherRequests.docs];
+    if (allDocs.isEmpty) {
+      throw Exception('No matching documents found');
+    }
+    return allDocs.first;  // or you might want to handle multiple docs differently
+  })
+]),
+            builder: (context, AsyncSnapshot<List<dynamic>> snapshots) {
               if (!snapshots.hasData) {
                 return Text(AppLocalizations.of(context)!.loading);
               }
               
               final userData = snapshots.data![0].data() as Map<String, dynamic>;
               final bookRequestData = snapshots.data![1].data() as Map<String, dynamic>;
-        return Column(
+              
+              return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   !isLenderView
@@ -95,24 +110,22 @@ final bool isLenderView;
                   child: ElevatedButton.icon(
                     onPressed: () => _openChat(context),
                     icon: const Icon(Icons.chat),
-                    label:  Text(
-                          AppLocalizations.of(context)!.contactlender),
+                    label: Text(AppLocalizations.of(context)!.contactlender),
                   ),
                 ),
                 const SizedBox(width: 8),
                 if(isLenderView)
-                Expanded(
-                          child: OutlinedButton.icon(
-                    onPressed: () => takenConfirmation(context,transactionId),
-                    icon: const Icon(Icons.check),
-                    label:  Text(AppLocalizations.of(context)!.markastaken),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => takenConfirmation(context, transactionId),
+                      icon: const Icon(Icons.check),
+                      label: Text(AppLocalizations.of(context)!.markastaken),
+                    ),
                   ),
-          
-                ),
               ],
             ),
           ),
-                  if (transaction['status'] == 'ongoing')
+        if (transaction['status'] == 'ongoing')
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -121,24 +134,23 @@ final bool isLenderView;
                   child: ElevatedButton.icon(
                     onPressed: () => _openChat(context),
                     icon: const Icon(Icons.chat),
-                    label:  Text(
-                          AppLocalizations.of(context)!.contactlender),
+                    label: Text(AppLocalizations.of(context)!.contactlender),
                   ),
                 ),
                 const SizedBox(width: 8),
                 if(isLenderView)
-                Expanded(
+                  Expanded(
                     child: OutlinedButton.icon(
-                    onPressed: () =>  returnConfirmation(context, transactionId),
-                    icon: const Icon(Icons.check),
-                    label:  Text(AppLocalizations.of(context)!.markasreturned),
+                      onPressed: () => returnConfirmation(context, transactionId),
+                      icon: const Icon(Icons.check),
+                      label: Text(AppLocalizations.of(context)!.markasreturned),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
         if (transaction['status'] == 'completed' &&
-            transaction[isLenderView? 'borrowerRating': 'lenderRating'] == null)
+            transaction[isLenderView ? 'borrowerRating' : 'lenderRating'] == null)
           Padding(
             padding: const EdgeInsets.all(16),
             child: ElevatedButton(
@@ -149,7 +161,7 @@ final bool isLenderView;
       ],
     ),
   );
-  }
+}
 
   Widget _buildStatusChip(String? status, context) {
     Color color;

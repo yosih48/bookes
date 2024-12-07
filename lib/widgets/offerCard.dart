@@ -334,6 +334,7 @@ class OfferRequestService {
         'status': 'pending_meetup',
         'startDate': FieldValue.serverTimestamp(),
         'chatId': chatDoc.id,
+    
       });
     }
   }
