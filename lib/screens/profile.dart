@@ -29,7 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     print(userId);
     _tabController = TabController(length: 4, vsync: this);
   }
-
+  final Map<String, bool> _expandedSections = {};
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,64 +40,57 @@ class _ProfileScreenState extends State<ProfileScreen>
             .snapshots(),
         builder: (context, userSnapshot) {
           if (!userSnapshot.hasData) {
-            print('!userSnapshot.hasData');
             return const Center(child: CircularProgressIndicator());
           }
 
           final userData = userSnapshot.data!.data() as Map<String, dynamic>;
 
-          return NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                SliverAppBar(
-                  expandedHeight: 200,
-                  floating: false,
-                  pinned: true,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: _buildProfileHeader(userData),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () async {
-                        showLogoutConfirmation(context);
-
-                        // await AuthMethods().signOut();
-                        // Navigator.of(context).pushReplacementNamed('/login');
-                      },
-                      child:  Text(
-                        AppLocalizations.of(context)!.signout,
-                        style: TextStyle(color: Colors.white),
-                      ),
+          return CustomScrollView(
+            slivers: [
+              // Profile Header
+              SliverToBoxAdapter(
+                child: _buildProfileHeader(userData),
+              ),
+              // Expandable Sections
+              SliverPadding(
+                padding: const EdgeInsets.all(16.0),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    _buildExpandableSection(
+                      title: AppLocalizations.of(context)!.myrequests,
+                      icon: Icons.book_outlined,
+                      summary: '3 Active Requests',
+                      content: _RequestsTab(userId: userId),
+                      sectionKey: 'requests',
                     ),
-                  ],
-                ),
-                SliverPersistentHeader(
-                  delegate: SliverAppBarDelegate(
-                    TabBar(
-                      controller: _tabController,
-                      labelColor: Theme.of(context).primaryColor,
-                      unselectedLabelColor: Colors.grey,
-                      tabs:  [
-                        Tab(text: AppLocalizations.of(context)!.myrequests),
-                        Tab(text: AppLocalizations.of(context)!.offers),
-                        Tab(text: AppLocalizations.of(context)!.history),
-                        Tab(text: AppLocalizations.of(context)!.chats),
-                      ],
+                    const SizedBox(height: 12),
+                    _buildExpandableSection(
+                      title: AppLocalizations.of(context)!.offers,
+                      icon: Icons.local_offer_outlined,
+                      summary: '2 Pending Offers',
+                      content: CombinedOffersTab(userId: userId),
+                      sectionKey: 'offers',
                     ),
-                  ),
-                  pinned: true,
+                    const SizedBox(height: 12),
+                    _buildExpandableSection(
+                      title: AppLocalizations.of(context)!.history,
+                      icon: Icons.history,
+                      summary: '12 Completed Transactions',
+                      content: CombinedHistoryTab(userId: userId),
+                      sectionKey: 'history',
+                    ),
+                    const SizedBox(height: 12),
+                    _buildExpandableSection(
+                      title: AppLocalizations.of(context)!.chats,
+                      icon: Icons.chat_bubble_outline,
+                      summary: '4 Active Chats',
+                      content: _ActiveChatsTab(userId: userId),
+                      sectionKey: 'chats',
+                    ),
+                  ]),
                 ),
-              ];
-            },
-            body: TabBarView(
-              controller: _tabController,
-              children: [
-                _RequestsTab(userId: userId),
-                CombinedOffersTab(userId: userId),
-                CombinedHistoryTab(userId: userId),
-                _ActiveChatsTab(userId: userId),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),
@@ -106,6 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildProfileHeader(Map<String, dynamic> userData) {
     return Container(
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -116,78 +110,237 @@ class _ProfileScreenState extends State<ProfileScreen>
           ],
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundImage: NetworkImage(userData['photoURL'] ?? ''),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            userData['username'] ?? 'User',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.center,
-          //   children: [
-          //     Icon(Icons.star, color: Colors.yellow[700], size: 20),
-          //     const SizedBox(width: 4),
-          //     Text(
-          //       '${userData['rating']?.toStringAsFixed(1) ?? '0.0'} (${userData['totalRatings'] ?? '0'})',
-          //       style: const TextStyle(color: Colors.white),
-          //     ),
-          //   ],
-          // ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+      child: SafeArea(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Row(
-                  children: List.generate(5, (index) {
-                    final rating = userData['rating'] ?? 0.0;
-                    return Icon(
-                      index < rating ? Icons.star : Icons.star_border,
-                      color: Colors.yellow[700],
-                      size: 20,
-                    );
-                  }),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${userData['rating']?.toStringAsFixed(1) ?? '0.0'}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '(${userData['totalRatings'] ?? '0'} ${AppLocalizations.of(context)!.ratings})',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
+                TextButton(
+                  onPressed: () => showLogoutConfirmation(context),
+                  child: Text(
+                    AppLocalizations.of(context)!.signout,
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               ],
             ),
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: NetworkImage(userData['photoURL'] ?? ''),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              userData['username'] ?? 'User',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: List.generate(5, (index) {
+                      final rating = userData['rating'] ?? 0.0;
+                      return Icon(
+                        index < rating ? Icons.star : Icons.star_border,
+                        color: Colors.yellow[700],
+                        size: 20,
+                      );
+                    }),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${userData['rating']?.toStringAsFixed(1) ?? '0.0'}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '(${userData['totalRatings'] ?? '0'} ${AppLocalizations.of(context)!.ratings})',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpandableSection({
+    required String title,
+    required IconData icon,
+    required String summary,
+    required Widget content,
+    required String sectionKey,
+  }) {
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () {
+              setState(() {
+                _expandedSections[sectionKey] = !(_expandedSections[sectionKey] ?? false);
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Icon(icon, size: 24, color: Theme.of(context).primaryColor),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          summary,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    _expandedSections[sectionKey] ?? false
+                        ? Icons.expand_less
+                        : Icons.expand_more,
+                    color: Colors.grey[600],
+                  ),
+                ],
+              ),
+            ),
           ),
+          if (_expandedSections[sectionKey] ?? false)
+            Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Colors.grey[200]!),
+                ),
+              ),
+              child: SizedBox(
+                height: 300, // Adjust this height as needed
+                child: content,
+              ),
+            ),
         ],
       ),
     );
   }
 }
+
+  // Widget _buildProfileHeader(Map<String, dynamic> userData) {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       gradient: LinearGradient(
+  //         begin: Alignment.topCenter,
+  //         end: Alignment.bottomCenter,
+  //         colors: [
+  //           Theme.of(context).primaryColor,
+  //           Theme.of(context).primaryColor.withOpacity(0.8),
+  //         ],
+  //       ),
+  //     ),
+  //     child: Column(
+  //       mainAxisAlignment: MainAxisAlignment.center,
+  //       children: [
+  //         CircleAvatar(
+  //           radius: 50,
+  //           backgroundImage: NetworkImage(userData['photoURL'] ?? ''),
+  //         ),
+  //         const SizedBox(height: 8),
+  //         Text(
+  //           userData['username'] ?? 'User',
+  //           style: const TextStyle(
+  //             color: Colors.white,
+  //             fontSize: 24,
+  //             fontWeight: FontWeight.bold,
+  //           ),
+  //         ),
+  //         const SizedBox(height: 4),
+  //         // Row(
+  //         //   mainAxisAlignment: MainAxisAlignment.center,
+  //         //   children: [
+  //         //     Icon(Icons.star, color: Colors.yellow[700], size: 20),
+  //         //     const SizedBox(width: 4),
+  //         //     Text(
+  //         //       '${userData['rating']?.toStringAsFixed(1) ?? '0.0'} (${userData['totalRatings'] ?? '0'})',
+  //         //       style: const TextStyle(color: Colors.white),
+  //         //     ),
+  //         //   ],
+  //         // ),
+  //         Container(
+  //           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //           decoration: BoxDecoration(
+  //             color: Colors.white.withOpacity(0.1),
+  //             borderRadius: BorderRadius.circular(20),
+  //           ),
+  //           child: Row(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               Row(
+  //                 children: List.generate(5, (index) {
+  //                   final rating = userData['rating'] ?? 0.0;
+  //                   return Icon(
+  //                     index < rating ? Icons.star : Icons.star_border,
+  //                     color: Colors.yellow[700],
+  //                     size: 20,
+  //                   );
+  //                 }),
+  //               ),
+  //               const SizedBox(width: 8),
+  //               Text(
+  //                 '${userData['rating']?.toStringAsFixed(1) ?? '0.0'}',
+  //                 style: const TextStyle(
+  //                   color: Colors.white,
+  //                   fontSize: 18,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ),
+  //               const SizedBox(width: 4),
+  //               Text(
+  //                 '(${userData['totalRatings'] ?? '0'} ${AppLocalizations.of(context)!.ratings})',
+  //                 style: const TextStyle(
+  //                   color: Colors.white70,
+  //                   fontSize: 14,
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
 
 class _RequestsTab extends StatelessWidget {
   final String userId;
