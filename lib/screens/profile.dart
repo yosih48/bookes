@@ -3,7 +3,9 @@ import 'package:bookes/widgets/activeChatsTab.dart';
 import 'package:bookes/widgets/combinedHistoryTab.dart';
 import 'package:bookes/widgets/combinedOffersTab.dart';
 import 'package:bookes/widgets/confirmDialog.dart';
+import 'package:bookes/widgets/myBookesCard.dart';
 import 'package:bookes/widgets/offerCard.dart';
+import 'package:bookes/widgets/offersTab.dart';
 import 'package:bookes/widgets/requestCard.dart';
 import 'package:bookes/widgets/sliverAppBarDelegate.dart';
 import 'package:bookes/widgets/transactionCard.dart';
@@ -68,8 +70,24 @@ class _ProfileScreenState extends State<ProfileScreen>
                       title: AppLocalizations.of(context)!.offers,
                       icon: Icons.local_offer_outlined,
                       summary: '2 Pending Offers',
-                      content: CombinedOffersTab(userId: userId),
+                      content: OffersTab(userId: userId),
                       sectionKey: 'offers',
+                    ),
+                    const SizedBox(height: 12),
+                    _buildExpandableSection(
+                      title: 'My Offers',
+                      icon: Icons.local_offer_outlined,
+                      summary: '2 Pending Offers',
+                      content: MyOffersTab(userId: userId),
+                      sectionKey: 'My Offers',
+                    ),
+                    const SizedBox(height: 12),
+                    _buildExpandableSection(
+                      title: 'My Bookes',
+                      icon: Icons.local_offer_outlined,
+                      summary: '2 Pending Offers',
+                      content: MyBookesTab(userId: userId),
+                      sectionKey: 'My Bookes',
                     ),
                     const SizedBox(height: 12),
                     _buildExpandableSection(
@@ -510,6 +528,7 @@ class MyOffersTab extends StatelessWidget {
       stream: FirebaseFirestore.instance
           .collection('bookOffers')
           .where('offererId', isEqualTo: userId)
+          .where('offerType', isEqualTo: 'DirectOffer')
           .orderBy('createdAt', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
@@ -528,6 +547,42 @@ class MyOffersTab extends StatelessWidget {
               offer: offer,
               offerId: offers[index].id,
               isLenderView: true,
+            );
+          },
+        );
+      },
+    );
+  }
+}
+class MyBookesTab extends StatelessWidget {
+  final String userId;
+
+  const MyBookesTab({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('available_books')
+          .where('userId', isEqualTo: userId)
+          // .where('offerType', isEqualTo: 'DirectOffer')
+          .orderBy('createdAt', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final myBookes = snapshot.data!.docs;
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: myBookes.length,
+          itemBuilder: (context, index) {
+            final bookes = myBookes[index].data() as Map<String, dynamic>;
+            return MyBooksCard(
+              myBookes: bookes,
+     
             );
           },
         );

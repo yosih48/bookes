@@ -185,7 +185,7 @@ return FutureBuilder<List<DocumentSnapshot>>(
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () =>
-                              showAcceptOfferConfirmation(context, 'declined', offerId, offer),
+                              showAcceptOfferConfirmation(context, 'declined', offerId, offer, true),
                           child:  Text(
                               AppLocalizations.of(context)!.decline),
                         ),
@@ -194,7 +194,7 @@ return FutureBuilder<List<DocumentSnapshot>>(
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () =>
-                              showAcceptOfferConfirmation(context, 'accepted', offerId, offer),
+                              showAcceptOfferConfirmation(context, 'accepted', offerId, offer , true),
                           child:  Text(
                               AppLocalizations.of(context)!.accept),
                         ),
@@ -305,10 +305,10 @@ String _formatDate(dynamic date) {
 
 class OfferRequestService {
   static Future<void> respondToOffer(
-      BuildContext context, String response, offerId, offer) async {
+      BuildContext context, String response, offerId, offer, isOffer) async {
     // Update offer status
     await FirebaseFirestore.instance
-        .collection('bookOffers')
+        .collection( isOffer? 'bookOffers': 'bookRequests')
         .doc(offerId)
         .update({
       'status': response,

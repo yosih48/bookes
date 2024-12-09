@@ -127,7 +127,8 @@
     "noBooksAvailable": "no Books Available",
     "pendingOwner": "Pending Owner",
     "bookOwner": "book Owner",
-    "bookDetails": "book Details"
+    "bookDetails": "book Details",
+    "norequestsyet": "no requests yet"
     
 
 

@@ -194,7 +194,7 @@ void showCancelRequestConfirmation(context, requestId) async {
 }
 
 void showAcceptOfferConfirmation(
-    context, String response, offerId, offer) async {
+    context, String response, offerId, offer, isOffer ) async {
   final acceptMessage =
       AppLocalizations.of(context)!.acceptbookoffer;
   final declineMessage =
@@ -211,7 +211,7 @@ void showAcceptOfferConfirmation(
   );
 
   if (result == true) {
-    OfferRequestService.respondToOffer(context, response, offerId, offer);
+    OfferRequestService.respondToOffer(context, response, offerId, offer, isOffer);
   }
 }
 

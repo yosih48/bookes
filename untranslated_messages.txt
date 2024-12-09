@@ -28,6 +28,7 @@
     "noBooksAvailable",
     "pendingOwner",
     "bookOwner",
-    "bookDetails"
+    "bookDetails",
+    "norequestsyet"
   ]
 }
