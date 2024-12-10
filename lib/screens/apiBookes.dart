@@ -23,6 +23,26 @@ class MainDashboard extends StatefulWidget {
 class _MainDashboardState extends State<MainDashboard> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String userId = FirebaseAuth.instance.currentUser!.uid;
+  String _searchTerm = '';
+    String _searchFilter = 'all'; 
+
+
+    bool _matchesSearch(Map<String, dynamic> bookData) {
+    if (_searchTerm.isEmpty) return true;
+    
+    final searchTermLower = _searchTerm.toLowerCase();
+    final title = (bookData['title'] as String?)?.toLowerCase() ?? '';
+    final author = (bookData['author'] as String?)?.toLowerCase() ?? '';
+
+    switch (_searchFilter) {
+      case 'title':
+        return title.contains(searchTermLower);
+      case 'author':
+        return author.contains(searchTermLower);
+      default: // 'all'
+        return title.contains(searchTermLower) || 
+               author.contains(searchTermLower);
+    } }
 
 
   @override
@@ -37,18 +57,49 @@ class _MainDashboardState extends State<MainDashboard> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Search Bar
-            TextField(
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.searchBooksNearYou,
-                prefixIcon: Icon(LucideIcons.book),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.searchBooksNearYou,
+                      prefixIcon: Icon(LucideIcons.book),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    // TODO: Implement search functionality
+                    onChanged: (value) {
+                          setState(() {
+                        _searchTerm = value;
+                      });
+                    },
+                  ),
                 ),
-              ),
-              // TODO: Implement search functionality
-              onChanged: (value) {
-                // Add search logic
-              },
+                   SizedBox(width: 8),
+                             DropdownButton<String>(
+                  value: _searchFilter,
+                  items: [
+                    DropdownMenuItem(
+                      value: 'all',
+                      child: Text('All'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'title',
+                      child: Text('Title'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'author',
+                      child: Text('Author'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _searchFilter = value ?? 'all';
+                    });
+                  },
+                ),
+              ],
             ),
             SizedBox(height: 16.0),
 
@@ -72,7 +123,7 @@ class _MainDashboardState extends State<MainDashboard> {
                 ),
               ],
             ),
-
+             
             // Available Books Stream
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
@@ -105,12 +156,43 @@ class _MainDashboardState extends State<MainDashboard> {
                       ),
                     );
                   }
+  
+                  final filteredDocs = snapshot.data!.docs.where((doc) {
+                    return _matchesSearch(doc.data() as Map<String, dynamic>);
+                  }).toList();
 
+                  if (filteredDocs.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(LucideIcons.searchX,
+                              size: 48, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text(AppLocalizations.of(context)!.noSearchResults),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (filteredDocs.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(LucideIcons.searchX,
+                              size: 48, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text(AppLocalizations.of(context)!.noSearchResults),
+                        ],
+                      ),
+                    );
+                  }
                   return ListView.separated(
-                    itemCount: snapshot.data!.docs.length,
+                   itemCount: filteredDocs.length,
                     separatorBuilder: (context, index) => SizedBox(height: 8.0),
                     itemBuilder: (context, index) {
-                      final doc = snapshot.data!.docs[index];
+                      final doc = filteredDocs[index];
                       final data = doc.data() as Map<String, dynamic>;
 
                       return BookCard(

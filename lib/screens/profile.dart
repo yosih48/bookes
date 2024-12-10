@@ -94,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       title: AppLocalizations.of(context)!.history,
                       icon: Icons.history,
                       summary: '12 Completed Transactions',
-                      content: CombinedHistoryTab(userId: userId),
+                      content: MyHistoryTab(userId: userId),
                       sectionKey: 'history',
                     ),
                     const SizedBox(height: 12),
@@ -598,19 +598,41 @@ class MyHistoryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
+return StreamBuilder(
       stream: FirebaseFirestore.instance
           .collection('bookTransactions')
-          .where('lenderId',
-              isEqualTo: userId) // Changed from borrowerId to lenderId
+          .where('lenderId', isEqualTo: userId)
           .orderBy('startDate', descending: true)
-          .snapshots(),
+          .snapshots()
+          .asyncMap((lenderSnapshot) async {
+        // Get borrower transactions
+        final borrowerSnapshot = await FirebaseFirestore.instance
+            .collection('bookTransactions')
+            .where('borrowerId', isEqualTo: userId)
+            .orderBy('startDate', descending: true)
+            .get();
+
+        // Combine both results
+        final allDocs = [
+          ...lenderSnapshot.docs,
+          ...borrowerSnapshot.docs,
+        ];
+
+        // Sort combined results by startDate
+        allDocs.sort((a, b) {
+          final dateA = (a.data()['startDate'] as Timestamp).toDate();
+          final dateB = (b.data()['startDate'] as Timestamp).toDate();
+          return dateB.compareTo(dateA); // descending order
+        });
+
+        return allDocs;
+      }),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final transactions = snapshot.data!.docs;
+      final transactions = snapshot.data!;
 
         if (transactions.isEmpty) {
           return  Center(

@@ -116,7 +116,7 @@ Widget _buildStatusChip(String? status, context) {
   String label;
 
   switch (status) {
-    case 'Active':
+    case 'Available':
       color = Colors.blue;
       label = AppLocalizations.of(context)!.active;
       break;

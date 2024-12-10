@@ -128,7 +128,8 @@
     "pendingOwner": "Pending Owner",
     "bookOwner": "book Owner",
     "bookDetails": "book Details",
-    "norequestsyet": "no requests yet"
+    "norequestsyet": "no requests yet",
+    "noSearchResults": "noSearchResults"
     
 
 
