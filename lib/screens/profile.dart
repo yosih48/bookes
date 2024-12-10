@@ -668,10 +668,11 @@ return StreamBuilder(
           itemBuilder: (context, index) {
             final transaction =
                 transactions[index].data() as Map<String, dynamic>;
+                  final isLenderView = transaction['lenderId'] == userId;
             return TransactionCard(
               transaction: transaction,
               transactionId: transactions[index].id,
-              isLenderView: true,
+                  isLenderView: isLenderView,
             );
           },
         );

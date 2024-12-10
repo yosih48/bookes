@@ -130,6 +130,10 @@ class RequestCard extends StatelessWidget {
         color = Colors.green;
         label = AppLocalizations.of(context)!.fulfilled;
         break;
+              case 'accepted':
+        color = Colors.green;
+        label = AppLocalizations.of(context)!.accepted;
+        break;
       case 'cancelled':
         color = Colors.red;
         label = AppLocalizations.of(context)!.cancelled;

@@ -11,157 +11,176 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 class TransactionCard extends StatelessWidget {
   final Map<String, dynamic> transaction;
   final String transactionId;
-final bool isLenderView;
+  final bool isLenderView;
 
   const TransactionCard({
     Key? key,
     required this.transaction,
-    required this.transactionId, 
+    required this.transactionId,
     required this.isLenderView,
   }) : super(key: key);
 
   @override
-Widget build(BuildContext context) {
-  return Card(
-    elevation: 2,
-    margin: const EdgeInsets.symmetric(vertical: 8),
-    child: Column(
-      children: [
-        ListTile(
-          title: FutureBuilder(
-future: Future.wait([
-  // Fetch user data
-  FirebaseFirestore.instance
-      .collection('users')
-      .doc(isLenderView ? transaction['borrowerId'] : transaction['lenderId'])
-      .get(),
-  // Fetch book request data with conditional query
-  Future(() async {
-    final directRequests = await FirebaseFirestore.instance
-        .collection('bookRequests')
-        .where('requestType', isEqualTo: "DirectRequest")
-        .where('availableBookId', isEqualTo: transaction['requestId'])
-        .get();
-        
-    final otherRequests = await FirebaseFirestore.instance
-        .collection('bookRequests')
-        .where('requestType', isNotEqualTo: "DirectRequest")
-        .where('requestId', isEqualTo: transaction['requestId'])
-        .get();
+  Widget build(BuildContext context) {
+    print(transactionId);
+    print(isLenderView);
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        children: [
+          ListTile(
+            title: FutureBuilder(
+              future: Future.wait([
+                // Fetch user data
+                FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(isLenderView
+                        ? transaction['borrowerId']
+                        : transaction['lenderId'])
+                    .get(),
+                // Fetch book request data with conditional query
+                Future(() async {
+                  final directRequests = await FirebaseFirestore.instance
+                      .collection('bookRequests')
+                      .where('requestType', isEqualTo: "DirectRequest")
+                      .where('requestId',
+                          isEqualTo: transaction['requestId'])
+                      .get();
 
-    // Combine results from both queries
-    final allDocs = [...directRequests.docs, ...otherRequests.docs];
-    if (allDocs.isEmpty) {
-      throw Exception('No matching documents found');
-    }
-    return allDocs.first;  // or you might want to handle multiple docs differently
-  })
-]),
-            builder: (context, AsyncSnapshot<List<dynamic>> snapshots) {
-              if (!snapshots.hasData) {
-                return Text(AppLocalizations.of(context)!.loading);
-              }
-              
-              final userData = snapshots.data![0].data() as Map<String, dynamic>;
-              final bookRequestData = snapshots.data![1].data() as Map<String, dynamic>;
-              
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  !isLenderView
-                      ? Text(
-                          '${AppLocalizations.of(context)!.borrowedfrom} ${userData['username']}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      : Text(
-                          '${AppLocalizations.of(context)!.lentto} ${userData['username']}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                  Row(
-                    children: [
-                      const Icon(Icons.book, size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          bookRequestData['title'] ?? 'Unknown Book',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
+                  final otherRequests = await FirebaseFirestore.instance
+                      .collection('bookRequests')
+                      .where('requestType', isNotEqualTo: "DirectRequest")
+                      .where('requestId', isEqualTo: transaction['requestId'])
+                      .get();
+
+                  // Combine results from both queries
+                  final allDocs = [
+                    ...directRequests.docs,
+                    ...otherRequests.docs
+                  ];
+                  if (allDocs.isEmpty) {
+                    throw Exception('No matching documents found');
+                  }
+                  return allDocs
+                      .first; // or you might want to handle multiple docs differently
+                })
+              ]),
+              builder: (context, AsyncSnapshot<List<dynamic>> snapshots) {
+                if (!snapshots.hasData) {
+                  return Text(AppLocalizations.of(context)!.loading);
+                }
+
+                final userData =
+                    snapshots.data![0].data() as Map<String, dynamic>;
+                final bookRequestData =
+                    snapshots.data![1].data() as Map<String, dynamic>;
+            print(
+                    'Current user is ${isLenderView ? "lender" : "borrower"}');
+                print(
+                    'Fetching user data for ID: ${isLenderView ? transaction['borrowerId'] : transaction['lenderId']}');
+                print('Fetched user data: ${userData}');
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    !isLenderView
+                        ? Text(
+                            '${AppLocalizations.of(context)!.borrowedfrom} ${userData['username']}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          )
+                        : Text(
+                            '${AppLocalizations.of(context)!.lentto} ${userData['username']}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        const Icon(Icons.book, size: 16, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            bookRequestData['title'] ?? 'Unknown Book',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
+            subtitle: Text(_formatDate(transaction['startDate'])),
+            trailing: _buildStatusChip(transaction['status'], context),
+          ),
+          if (transaction['status'] == 'pending_meetup')
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _openChat(context),
+                      icon: const Icon(Icons.chat),
+                      label: Text(AppLocalizations.of(context)!.contactlender),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  if (isLenderView)
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () =>
+                            takenConfirmation(context, transactionId),
+                        icon: const Icon(Icons.check),
+                        label: Text(AppLocalizations.of(context)!.markastaken),
                       ),
-                    ],
-                  ),
+                    ),
                 ],
-              );
-            },
-          ),
-          subtitle: Text(_formatDate(transaction['startDate'])),
-          trailing: _buildStatusChip(transaction['status'], context),
-        ),
-        if (transaction['status'] == 'pending_meetup')
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _openChat(context),
-                    icon: const Icon(Icons.chat),
-                    label: Text(AppLocalizations.of(context)!.contactlender),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                if(isLenderView)
+              ),
+            ),
+          if (transaction['status'] == 'ongoing')
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => takenConfirmation(context, transactionId),
-                      icon: const Icon(Icons.check),
-                      label: Text(AppLocalizations.of(context)!.markastaken),
+                    child: ElevatedButton.icon(
+                      onPressed: () => _openChat(context),
+                      icon: const Icon(Icons.chat),
+                      label: Text(AppLocalizations.of(context)!.contactlender),
                     ),
                   ),
-              ],
-            ),
-          ),
-        if (transaction['status'] == 'ongoing')
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _openChat(context),
-                    icon: const Icon(Icons.chat),
-                    label: Text(AppLocalizations.of(context)!.contactlender),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                if(isLenderView)
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => returnConfirmation(context, transactionId),
-                      icon: const Icon(Icons.check),
-                      label: Text(AppLocalizations.of(context)!.markasreturned),
+                  const SizedBox(width: 8),
+                  if (isLenderView)
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () =>
+                            returnConfirmation(context, transactionId),
+                        icon: const Icon(Icons.check),
+                        label:
+                            Text(AppLocalizations.of(context)!.markasreturned),
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-        if (transaction['status'] == 'completed' &&
-            transaction[isLenderView ? 'borrowerRating' : 'lenderRating'] == null)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: ElevatedButton(
-              onPressed: () => _rateTransaction(context),
-              child: Text(AppLocalizations.of(context)!.rateexperience),
+          if (transaction['status'] == 'completed' &&
+              transaction[isLenderView ? 'borrowerRating' : 'lenderRating'] ==
+                  null)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                onPressed: () => _rateTransaction(context),
+                child: Text(AppLocalizations.of(context)!.rateexperience),
+              ),
             ),
-          ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildStatusChip(String? status, context) {
     Color color;
@@ -207,20 +226,14 @@ future: Future.wait([
     // Navigate to chat screen using transaction['chatId']
   }
 
-
-
-
-
-
-void _rateTransaction(BuildContext context) {
+  void _rateTransaction(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => RatingDialog(
-        transactionId: transactionId,
-        lenderId: transaction['lenderId'],
-        borrowerId: transaction['borrowerId'],
-        isLenderView: isLenderView
-      ),
+          transactionId: transactionId,
+          lenderId: transaction['lenderId'],
+          borrowerId: transaction['borrowerId'],
+          isLenderView: isLenderView),
     );
   }
 }
@@ -232,6 +245,7 @@ String _formatDate(dynamic date) {
   }
   return 'Invalid date';
 }
+
 class TransactionRequestService {
   static Future<void> markAsTaken(BuildContext context, transactionId) async {
     await FirebaseFirestore.instance
@@ -242,7 +256,9 @@ class TransactionRequestService {
       'actualReturnDate': FieldValue.serverTimestamp(),
     });
   }
-static   Future<void> markAsReturned(BuildContext context, transactionId) async {
+
+  static Future<void> markAsReturned(
+      BuildContext context, transactionId) async {
     await FirebaseFirestore.instance
         .collection('bookTransactions')
         .doc(transactionId)
@@ -251,5 +267,4 @@ static   Future<void> markAsReturned(BuildContext context, transactionId) async 
       'actualReturnDate': FieldValue.serverTimestamp(),
     });
   }
-
 }

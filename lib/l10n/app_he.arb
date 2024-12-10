@@ -91,6 +91,8 @@
     "acceptbookoffer": "תרצה לקבל את ההצעה? תוכל ליצור קשר עם המשאיל אחרי האישור",
     "declinebookoffer": "תרצה לדחות את ההצעה? לא תוכל ליצור קשר עם המשאיל אחרי הדחייה",
     "canceloffer": "בטל הצעה",
-    "acceptOffer": "קבל הצעה"
+    "acceptOffer": "קבל הצעה",
+    "genre": "זאנר",
+    "pleaseSelectGenre": "בחר זאנר"
 
 }

@@ -129,7 +129,10 @@
     "bookOwner": "book Owner",
     "bookDetails": "book Details",
     "norequestsyet": "no requests yet",
-    "noSearchResults": "noSearchResults"
+    "noSearchResults": "noSearchResults",
+  
+    "genre": "genre",
+    "pleaseSelectGenre": "please Select Genre"
     
 
 

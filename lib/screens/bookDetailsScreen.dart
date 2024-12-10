@@ -80,6 +80,7 @@ String _location = 'Unknown';
                    requestId: bookData['availableBookId'],
                    availableBookId: bookData['availableBookId'],
                   title: bookData['title'],
+                  genre: bookData['genre'],
                   author: bookData['author'],
                   condition: bookData['condition'],
                   location: _location,

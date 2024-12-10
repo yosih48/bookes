@@ -4,6 +4,7 @@ class BookUpload {
   final String? availableBookId;
   final String userId;
   final String title;
+   final String genre;
   final String author;
   final String condition;
   final String location;
@@ -16,6 +17,7 @@ class BookUpload {
     required this.userId,
    this.availableBookId,
     required this.title,
+    required this.genre,
     required this.author,
     required this.condition,
     required this.location,
@@ -30,6 +32,7 @@ class BookUpload {
     String? availableBookId,
 
     String? title,
+    String? genre,
     String? author,
     String? condition,
     String? location,
@@ -44,6 +47,7 @@ class BookUpload {
       userId: userId ?? this.userId,
       availableBookId: availableBookId ?? this.availableBookId,
       title: title ?? this.title,
+      genre: genre ?? this.genre,
 
       author: author ?? this.author,
       condition: condition ?? this.condition,
@@ -63,6 +67,7 @@ class BookUpload {
       'userId': userId,
       'availableBookId': availableBookId,
       'title': title,
+      'genre': genre,
       'author': author,
       'condition': condition,
       'location': location,
@@ -78,6 +83,7 @@ class BookUpload {
       userId: map['userId'],
       availableBookId: map['availableBookId'],
       title: map['title'],
+      genre: map['genre'],
       author: map['author'],
       condition: map['condition'],
       location: map['location'],
@@ -95,6 +101,7 @@ class BookUpload {
    availableBookId: doc.id,
       userId: data['userId'],
       title: data['title'],
+      genre: data['genre'],
 
       author: data['author'],
       condition: data['condition'],

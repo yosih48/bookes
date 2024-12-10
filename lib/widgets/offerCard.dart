@@ -329,8 +329,8 @@ class OfferRequestService {
       await FirebaseFirestore.instance.collection('bookTransactions').add({
         'offerId': offerId,
         'requestId': offer['requestId'],
-        'borrowerId': offer['requesterId'],
-        'lenderId': offer['offererId'],
+        'borrowerId': offer['userId'],
+        'lenderId': offer['ownerId'],
         'status': 'pending_meetup',
         'startDate': FieldValue.serverTimestamp(),
         'chatId': chatDoc.id,

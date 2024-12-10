@@ -6,6 +6,7 @@ class BookRequest {
   final String? ownerId;
   final String? availableBookId;
   final String title;
+  final String genre;
   final String author;
   final String condition;
   final String location;
@@ -19,6 +20,7 @@ class BookRequest {
     this.requestId,
     required this.userId,
     required this.title,
+    required this.genre,
      this.ownerId,
      this.availableBookId,
     required this.author,
@@ -37,6 +39,7 @@ class BookRequest {
     String? ownerId,
     String? availableBookId,
     String? title,
+    String? genre,
     String? author,
     String? condition,
     String? location,
@@ -50,6 +53,7 @@ class BookRequest {
       requestId: requestId ?? this.requestId,
       userId: userId ?? this.userId,
       title: title ?? this.title,
+      genre: genre ?? this.genre,
       ownerId: ownerId ?? this.ownerId,
       availableBookId: availableBookId ?? this.availableBookId,
       requestType: requestType ?? this.requestType,
@@ -71,6 +75,7 @@ class BookRequest {
       'requestId': requestId,
       'userId': userId,
       'title': title,
+      'genre': genre,
       'ownerId': ownerId,
       'availableBookId': availableBookId,
       'requestType': requestType,
@@ -91,6 +96,7 @@ class BookRequest {
           requestId: doc.id, // Assign the provided requestId
       userId: data['userId'],
       title: data['title'],
+      genre: data['genre'],
       ownerId: data['ownerId'] ?? 'null',
       availableBookId: data['availableBookId'] ?? 'null',
       requestType: data['requestType'],

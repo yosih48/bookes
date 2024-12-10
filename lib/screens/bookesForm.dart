@@ -35,6 +35,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
   final _authorController = TextEditingController();
   final _conditionController = TextEditingController();
   final _locationController = TextEditingController();
+  final TextEditingController _genreController = TextEditingController();
   String _selectedLocation = '';
   Position? _currentPosition;
   bool _isLoading = false;
@@ -44,6 +45,25 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
 
   final LocationService _locationService = LocationService();
   String _location = 'Unknown';
+  String? _selectedGenre;
+
+  final List<String> _genres = [
+    'Fiction',
+    'Non-Fiction',
+    'Science Fiction',
+    'Fantasy',
+    'Mystery',
+    'Romance',
+    'Thriller',
+    'Horror',
+    'Biography',
+    'History',
+    'Science',
+    'Poetry',
+    'Drama',
+    'Children',
+    'Young Adult',
+  ];
 
   void _fetchLocation() async {
     String? location = await _locationService.getCurrentLocation(context);
@@ -61,6 +81,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
   @override
   void dispose() {
     _locationController.dispose();
+      _genreController.dispose();
     super.dispose();
   }
 
@@ -104,6 +125,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
           final bookUpload = BookUpload(
             userId: userId,
             title: _titleController.text,
+            genre: _genreController.text,
             author: _authorController.text,
             condition: _conditionController.text,
             location: _locationController.text,
@@ -137,6 +159,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
           final bookRequest = BookRequest(
             userId: userId,
             title: _titleController.text,
+            genre: _genreController.text,
             author: _authorController.text,
             condition: _conditionController.text,
             location: _locationController.text,
@@ -344,6 +367,38 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                                   .pleaseentertheauthor;
                             }
                             return null;
+                          },
+                        ),
+                        const SizedBox(height: 16.0),
+                        DropdownButtonFormField<String>(
+                          value: _selectedGenre,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.genre,
+                            prefixIcon: const Icon(LucideIcons.bookOpen),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[50],
+                          ),
+                          items: _genres.map((String genre) {
+                            return DropdownMenuItem<String>(
+                              value: genre,
+                              child: Text(genre),
+                            );
+                          }).toList(),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return AppLocalizations.of(context)!
+                                  .pleaseSelectGenre;
+                            }
+                            return null;
+                          },
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedGenre = newValue;
+                              _genreController.text = newValue ?? '';
+                            });
                           },
                         ),
                       ],
