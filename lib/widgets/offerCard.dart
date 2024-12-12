@@ -316,6 +316,7 @@ class OfferRequestService {
     });
 
     if (response == 'accepted') {
+      
       // Create a chat room
       final chatDoc = await FirebaseFirestore.instance.collection('chats').add({
         'offerId': offerId,

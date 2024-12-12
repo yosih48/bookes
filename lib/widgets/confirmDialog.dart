@@ -214,6 +214,27 @@ void showAcceptOfferConfirmation(
     OfferRequestService.respondToOffer(context, response, offerId, offer, isOffer);
   }
 }
+void showAcceptDirectRequestConfirmation(
+    context, String response, requestId, request) async {
+  final acceptMessage =
+      AppLocalizations.of(context)!.acceptbookoffer;
+  final declineMessage =
+      AppLocalizations.of(context)!.declinebookoffer;
+  final result = await ConfirmDialog.show(
+    context: context,
+    title: response == 'accepted' ? AppLocalizations.of(context)!.acceptOffer : AppLocalizations.of(context)!.canceloffer,
+    message: response == 'accepted' ? acceptMessage : declineMessage,
+    confirmText: response == 'accepted' ? AppLocalizations.of(context)!.accept : AppLocalizations.of(context)!.decline,
+    icon: response == 'accepted'
+        ? Icons.check_circle_outline
+        : Icons.cancel_outlined,
+    confirmColor: response == 'accepted' ? Colors.green : Colors.red,
+  );
+
+  if (result == true) {
+    OfferRequestService.respondToOffer(context, response, requestId, request);
+  }
+}
 
 void takenConfirmation(context, transactionId) async {
   final result = await ConfirmDialog.show(

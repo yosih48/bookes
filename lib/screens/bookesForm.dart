@@ -123,17 +123,17 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
         final FirebaseFirestore _firestore = FirebaseFirestore.instance;
        final docRef = _firestore.collection('available_books').doc();
           final bookUpload = BookUpload(
-            userId: userId,
+            ownerId: userId,
             title: _titleController.text,
             genre: _genreController.text,
             author: _authorController.text,
-            condition: _conditionController.text,
-            location: _locationController.text,
+            // condition: _conditionController.text,
+            // location: _locationController.text,
             imageUrl: imageUrl,
-            coordinates: coordinates,
+            // coordinates: coordinates,
             createdAt: DateTime.now(),
             status: 'Available',
-             availableBookId: docRef.id 
+             bookId: docRef.id 
           );
           final bookOffer = BookOffer(
             requestId: docRef.id, // Assuming you have this from auth
@@ -146,7 +146,7 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
 
          
           await BookUploadService().createBookUpload(bookUpload);
-          await BookOfferService().createBookOffer(bookOffer);
+          // await BookOfferService().createBookOffer(bookOffer);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content:
@@ -423,27 +423,27 @@ class _BookRequestScreenState extends State<BookRequestScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 16.0),
-                        TextFormField(
-                          controller: _conditionController,
-                          decoration: InputDecoration(
-                            labelText:
-                                AppLocalizations.of(context)!.bookcondition,
-                            prefixIcon: const Icon(LucideIcons.book),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[50],
-                          ),
-                          validator: (value) {
-                            if (value?.isEmpty ?? true) {
-                              return AppLocalizations.of(context)!
-                                  .bookcondition;
-                            }
-                            return null;
-                          },
-                        ),
+                        // const SizedBox(height: 16.0),
+                        // TextFormField(
+                        //   controller: _conditionController,
+                        //   decoration: InputDecoration(
+                        //     labelText:
+                        //         AppLocalizations.of(context)!.bookcondition,
+                        //     prefixIcon: const Icon(LucideIcons.book),
+                        //     border: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(8),
+                        //     ),
+                        //     filled: true,
+                        //     fillColor: Colors.grey[50],
+                        //   ),
+                        //   validator: (value) {
+                        //     if (value?.isEmpty ?? true) {
+                        //       return AppLocalizations.of(context)!
+                        //           .bookcondition;
+                        //     }
+                        //     return null;
+                        //   },
+                        // ),
                         const SizedBox(height: 16.0),
                         InkWell(
                           onTap: _fetchLocation,

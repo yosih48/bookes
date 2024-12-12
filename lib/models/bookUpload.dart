@@ -1,59 +1,59 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 class BookUpload {
-  final String? availableBookId;
-  final String userId;
+  final String? bookId;
+  final String ownerId;
   final String title;
    final String genre;
   final String author;
-  final String condition;
-  final String location;
+  // final String condition;
+  // final String location;
   final String imageUrl;
-  final GeoPoint coordinates;
+  // final GeoPoint coordinates;
   final DateTime createdAt;
   final String status;
 
   BookUpload({
-    required this.userId,
-   this.availableBookId,
+    required this.ownerId,
+   this.bookId,
     required this.title,
     required this.genre,
     required this.author,
-    required this.condition,
-    required this.location,
+    // required this.condition,
+    // required this.location,
     required this.imageUrl,
-    required this.coordinates,
+    // required this.coordinates,
     required this.createdAt,
     required this.status,
   });
   BookUpload copyWith({
 
-    String? userId,
-    String? availableBookId,
+    String? ownerId,
+    String? bookId,
 
     String? title,
     String? genre,
     String? author,
-    String? condition,
-    String? location,
+    // String? condition,
+    // String? location,
     String? imageUrl,
 
-    GeoPoint? coordinates,
+    // GeoPoint? coordinates,
     DateTime? createdAt,
     String? status,
   }) {
     return BookUpload(
    
-      userId: userId ?? this.userId,
-      availableBookId: availableBookId ?? this.availableBookId,
+      ownerId: ownerId ?? this.ownerId,
+      bookId: bookId ?? this.bookId,
       title: title ?? this.title,
       genre: genre ?? this.genre,
 
       author: author ?? this.author,
-      condition: condition ?? this.condition,
-      location: location ?? this.location,
+      // condition: condition ?? this.condition,
+      // location: location ?? this.location,
       imageUrl: imageUrl ?? this.imageUrl,
-      coordinates: coordinates ?? this.coordinates,
+      // coordinates: coordinates ?? this.coordinates,
       createdAt: createdAt ?? this.createdAt,
       status: status ?? this.status,
     );
@@ -64,15 +64,15 @@ class BookUpload {
 
   Map<String, dynamic> toMap() {
     return {
-      'userId': userId,
-      'availableBookId': availableBookId,
+      'ownerId': ownerId,
+      'bookId': bookId,
       'title': title,
       'genre': genre,
       'author': author,
-      'condition': condition,
-      'location': location,
+      // 'condition': condition,
+      // 'location': location,
       'imageUrl': imageUrl,
-      'coordinates': coordinates,
+      // 'coordinates': coordinates,
       'createdAt': createdAt,
       'status': status,
     };
@@ -80,15 +80,15 @@ class BookUpload {
 
   factory BookUpload.fromMap(Map<String, dynamic> map) {
     return BookUpload(
-      userId: map['userId'],
-      availableBookId: map['availableBookId'],
+      ownerId: map['ownerId'],
+      bookId: map['bookId'],
       title: map['title'],
       genre: map['genre'],
       author: map['author'],
-      condition: map['condition'],
-      location: map['location'],
+      // condition: map['condition'],
+      // location: map['location'],
       imageUrl: map['imageUrl'],
-      coordinates: map['coordinates'],
+      // coordinates: map['coordinates'],
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       status: map['status'],
     );
@@ -98,17 +98,17 @@ class BookUpload {
   factory BookUpload.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return BookUpload(
-   availableBookId: doc.id,
-      userId: data['userId'],
+   bookId: doc.id,
+      ownerId: data['ownerId'],
       title: data['title'],
       genre: data['genre'],
 
       author: data['author'],
-      condition: data['condition'],
-      location: data['location'],
+      // condition: data['condition'],
+      // location: data['location'],
       imageUrl: data['imageUrl'],
       status: data['status'],
-      coordinates: data['coordinates'],
+      // coordinates: data['coordinates'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
     );
   }

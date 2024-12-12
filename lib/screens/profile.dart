@@ -564,7 +564,7 @@ class MyBookesTab extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('available_books')
-          .where('userId', isEqualTo: userId)
+          .where('ownerId', isEqualTo: userId)
           // .where('offerType', isEqualTo: 'DirectOffer')
           .orderBy('createdAt', descending: true)
           .snapshots(),

@@ -9,6 +9,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../models/directBookRequests.dart';
+
 class BookDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> book;
   const BookDetailsScreen({
@@ -75,24 +77,17 @@ String _location = 'Unknown';
               print(bookData['availableBookId']);
               final bool isDirect = true;
 
-              final bookRequest = BookRequest(
-                  userId: userId,
-                   requestId: bookData['availableBookId'],
-                   availableBookId: bookData['availableBookId'],
-                  title: bookData['title'],
-                  genre: bookData['genre'],
-                  author: bookData['author'],
-                  condition: bookData['condition'],
-                  location: _location,
-                  imageUrl: bookData[' imageUrl'],
-                  requestType: 'DirectRequest',
-                  coordinates: coordinates,
+              final bookRequest = DirectBookRequest(
+                  requesterId: userId,
+                 
+                   bookId: bookData['bookId'],
+     
                   createdAt: DateTime.now(),
                   status: 'Pending Owner',
-                  ownerId: bookData['userId']);
-              await BookRequestService().createBookRequest(bookRequest, isDirect);
-               await BookOfferService().updateBookOfferRequesterId(
-                  bookData['availableBookId'], userId);
+                  ownerId: bookData['ownerId']);
+              await BookRequestService().createDirectBookRequest(bookRequest, isDirect);
+              //  await BookOfferService().updateBookOfferRequesterId(
+              //     bookData['availableBookId'], userId);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content:

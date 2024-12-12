@@ -79,7 +79,7 @@ class MyBooksCard extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => MyBookRequestsScreen(
-                              availableBookId: myBookes['availableBookId'],
+                              bookId: myBookes['bookId'],
                             ),
                           ),
                         );

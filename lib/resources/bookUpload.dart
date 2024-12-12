@@ -11,7 +11,7 @@ class BookUploadService {
     try {
       final docRef = _firestore
           .collection('available_books')
-          .doc(bookUpload.availableBookId);
+          .doc(bookUpload.bookId);
 
       // Save the BookUpload to Firestore
       await docRef.set(bookUpload.toMap());

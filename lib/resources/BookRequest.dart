@@ -2,6 +2,8 @@ import 'package:bookes/models/BookRequest.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../models/directBookRequests.dart';
+
 class BookRequestService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -40,6 +42,42 @@ class BookRequestService {
       throw 'Failed to create book request: $e';
     }
   }
+
+  Future<DirectBookRequest> createDirectBookRequest(
+    DirectBookRequest request, bool isDirect) async {
+    try {
+      if (!isDirect) {
+        // Generate a new document reference with an automatic ID
+        final docRef = _firestore.collection('directBookRequests').doc();
+
+        // Set the generated ID as the requestId in the BookRequest object
+        request = request.copyWith(requestId: docRef.id);
+
+        // Save the BookRequest to Firestore with the custom ID
+        await docRef.set(request.toMap());
+
+        // Fetch the saved document to return it as a BookRequest object
+        final docSnapshot = await docRef.get();
+        return DirectBookRequest.fromFirestore(docSnapshot);
+      } else {
+        final docRef = _firestore.collection('directBookRequests').doc();
+        request = request.copyWith(requestId: docRef.id);
+        // Save the BookRequest to Firestore with the specified ID
+        await docRef.set(request.toMap());
+
+        // Fetch and return the saved document
+        final docSnapshot = await docRef.get();
+        return DirectBookRequest.fromFirestore(docSnapshot);
+
+//         // await _firestore.collection('bookRequests').add(request.toMap());
+//         //   return request;
+      }
+    } catch (e) {
+      throw 'Failed to create book request: $e';
+    }
+  }
+
+
 
   Future<List<BookRequest>> getBookRequests() async {
     try {

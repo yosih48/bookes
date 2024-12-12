@@ -5,11 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 class MyBookRequestsScreen extends StatelessWidget {
-  final String availableBookId;
+  final String bookId;
 
   const MyBookRequestsScreen({
     Key? key,
-    required this.availableBookId,
+    required this.bookId,
   }) : super(key: key);
 
 
@@ -113,9 +113,9 @@ class MyBookRequestsScreen extends StatelessWidget {
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('bookRequests')
-            .where('availableBookId', isEqualTo: availableBookId)
-            .where('requestType', isEqualTo: 'DirectRequest')
+            .collection('directBookRequests')
+            .where('bookId', isEqualTo: bookId)
+      
             .snapshots(),
         builder: (context, requestSnapshot) {
           if (!requestSnapshot.hasData) {
@@ -150,7 +150,7 @@ class MyBookRequestsScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final request = requests[index].data() as Map<String, dynamic>;
               final requestId = requests[index].id;
-              final requesterId = request['userId'] as String;
+              final requesterId = request['requesterId'] as String;
 
               return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
@@ -262,12 +262,12 @@ class MyBookRequestsScreen extends StatelessWidget {
                                           vertical: 12),
                                     ),
                                     onPressed: () => 
-                                                showAcceptOfferConfirmation(
+                                                showAcceptDirectRequestConfirmation(
                                             context,
                                          'accepted',
                                             requestId,
-                                            request,
-                                            false),
+                                            request
+                                            ),
                                     // _handleRequest(
                                     //   context,
                                     //   requestId,
