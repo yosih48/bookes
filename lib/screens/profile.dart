@@ -508,7 +508,7 @@ class _ActiveChatsTab extends StatelessWidget {
               lastMessage: chat['lastMessage'] ?? '',
               lastMessageTimestamp: chat['lastMessageTimestamp'],
               currentUserId: userId,
-              offerId: chat['offerId'],
+              offerId: chat['loanId'],
             );
           },
         );

@@ -59,7 +59,7 @@ class MyBooksCard extends StatelessWidget {
               ],
             ),
           ),
-          if (myBookes['status'] == 'Available' )
+          // if (myBookes['status'] == 'Available' )
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -120,7 +120,7 @@ Widget _buildStatusChip(String? status, context) {
       color = Colors.blue;
       label = AppLocalizations.of(context)!.active;
       break;
-    case 'fulfilled':
+    case 'borrowed':
       color = Colors.green;
       label = AppLocalizations.of(context)!.fulfilled;
       break;
@@ -131,6 +131,10 @@ Widget _buildStatusChip(String? status, context) {
     case 'Pending Owner':
       color = Colors.orange;
       label = AppLocalizations.of(context)!.pendingOwner;
+      break;
+    case 'Pending Meetup':
+      color = Colors.orange;
+      label = AppLocalizations.of(context)!.pendingmeetup;
       break;
     default:
       color = Colors.grey;

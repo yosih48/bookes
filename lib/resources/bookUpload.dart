@@ -26,4 +26,58 @@ class BookUploadService {
 
     
   }
+
+
+
+  static Future<void> respondToDirectRequest(
+   context, String response,request) async {
+
+  
+    // Update offer status
+    await FirebaseFirestore.instance
+        .collection( 'directBookRequests')
+        .doc(request['requestId'])
+        .update({
+      'status': response,
+      'responseAt': FieldValue.serverTimestamp(),
+    });
+
+    if (response == 'accepted') {
+      
+    await FirebaseFirestore.instance
+        .collection('available_books')
+        .doc(request['bookId'])
+        .update({
+      'status': 'Pending Meetup',
+      'responseAt': FieldValue.serverTimestamp(),
+    });
+
+      // Create a chat room
+      final chatDoc = await FirebaseFirestore.instance.collection('chats').add({
+        'loanId':  request['requestId'],
+        'participants': [request['ownerId'], request['requesterId']],
+        'lastMessage': 'Chat started',
+        'lastMessageTimestamp': FieldValue.serverTimestamp(),
+        'unreadCount': 0,
+      });
+
+      // Create initial transaction
+      await FirebaseFirestore.instance.collection('bookTransactions').add({
+        'bookId': request['bookId'],
+        'requestId': request['requestId'],
+        'borrowerId': request['requesterId'],
+        'lenderId': request['ownerId'],
+        'status': 'pending_meetup',
+        'startDate': FieldValue.serverTimestamp(),
+        'chatId': chatDoc.id,
+    
+      });
+    }
+  }
+
+
+
+
+
+
 }

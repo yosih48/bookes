@@ -42,15 +42,15 @@ class TransactionCard extends StatelessWidget {
                 // Fetch book request data with conditional query
                 Future(() async {
                   final directRequests = await FirebaseFirestore.instance
-                      .collection('bookRequests')
-                      .where('requestType', isEqualTo: "DirectRequest")
-                      .where('requestId',
-                          isEqualTo: transaction['requestId'])
+                      .collection('available_books')
+                 
+                      .where('bookId',
+                          isEqualTo: transaction['bookId'])
                       .get();
 
                   final otherRequests = await FirebaseFirestore.instance
                       .collection('bookRequests')
-                      .where('requestType', isNotEqualTo: "DirectRequest")
+                    
                       .where('requestId', isEqualTo: transaction['requestId'])
                       .get();
 
@@ -133,7 +133,7 @@ class TransactionCard extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () =>
-                            takenConfirmation(context, transactionId),
+                            takenConfirmation(context, transactionId,transaction['bookId']),
                         icon: const Icon(Icons.check),
                         label: Text(AppLocalizations.of(context)!.markastaken),
                       ),
@@ -247,14 +247,28 @@ String _formatDate(dynamic date) {
 }
 
 class TransactionRequestService {
-  static Future<void> markAsTaken(BuildContext context, transactionId) async {
+  static Future<void> markAsTaken(BuildContext context, requestId,bookId) async {
     await FirebaseFirestore.instance
-        .collection('bookTransactions')
-        .doc(transactionId)
+        .collection('directBookRequests')
+        .doc(requestId)
         .update({
       'status': 'ongoing',
       'actualReturnDate': FieldValue.serverTimestamp(),
     });
+        await FirebaseFirestore.instance
+        .collection('available_books')
+        .doc(bookId)
+        .update({
+      'status': 'borrowed',
+      'actualReturnDate': FieldValue.serverTimestamp(),
+    });
+    // await FirebaseFirestore.instance
+    //     .collection('bookTransactions')
+    //     .doc(requestId)
+    //     .update({
+    //   'status': 'ongoing',
+    //   'actualReturnDate': FieldValue.serverTimestamp(),
+    // });
   }
 
   static Future<void> markAsReturned(

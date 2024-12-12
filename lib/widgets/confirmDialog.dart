@@ -1,4 +1,5 @@
 import 'package:bookes/resources/auth.dart';
+import 'package:bookes/resources/bookUpload.dart';
 import 'package:bookes/widgets/offerCard.dart';
 import 'package:bookes/widgets/requestCard.dart';
 import 'package:bookes/widgets/transactionCard.dart';
@@ -215,7 +216,7 @@ void showAcceptOfferConfirmation(
   }
 }
 void showAcceptDirectRequestConfirmation(
-    context, String response, requestId, request) async {
+    context, String response, request) async {
   final acceptMessage =
       AppLocalizations.of(context)!.acceptbookoffer;
   final declineMessage =
@@ -232,11 +233,11 @@ void showAcceptDirectRequestConfirmation(
   );
 
   if (result == true) {
-    OfferRequestService.respondToOffer(context, response, requestId, request);
+    BookUploadService.respondToDirectRequest(context, response,  request);
   }
 }
 
-void takenConfirmation(context, transactionId) async {
+void takenConfirmation(context, requestId, bookId) async {
   final result = await ConfirmDialog.show(
     context: context,
     title: 'Confirm Lent',
@@ -248,7 +249,7 @@ void takenConfirmation(context, transactionId) async {
   );
 
   if (result == true) {
-    TransactionRequestService.markAsTaken(context, transactionId);
+    TransactionRequestService.markAsTaken(context, requestId,bookId);
   }
 }
 

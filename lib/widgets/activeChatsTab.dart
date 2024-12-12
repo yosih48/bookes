@@ -84,7 +84,7 @@ class ChatListItem extends StatelessWidget {
             trailing: FutureBuilder<DocumentSnapshot>(
               future: FirebaseFirestore.instance
                   .collection('bookTransactions')
-                  .where('offerId', isEqualTo: offerId)
+                  .where('requestId', isEqualTo: offerId)
                   .limit(1)
                   .get()
                   .then((snapshot) => snapshot.docs.first),

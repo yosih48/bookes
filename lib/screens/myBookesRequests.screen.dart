@@ -18,7 +18,7 @@ class MyBookRequestsScreen extends StatelessWidget {
       // Query the chats collection to find the chat document with this offerId
       final chatSnapshot = await FirebaseFirestore.instance
           .collection('chats')
-          .where('offerId', isEqualTo: request['requestId'])
+          .where('loanId', isEqualTo: request['requestId'])
           .limit(1)
           .get();
 
@@ -36,7 +36,7 @@ class MyBookRequestsScreen extends StatelessWidget {
                 currentUserId:
                     request['ownerId'],
                 otherUserId:
-              request['userId'],
+              request['requesterId'],
               ),
             ),
           );
@@ -106,6 +106,7 @@ class MyBookRequestsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('bookId: ${bookId}');
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.requestabook),
@@ -246,8 +247,8 @@ class MyBookRequestsScreen extends StatelessWidget {
                                     //   requesterId,
                                     //   false,
                                     // ),
-                                     showAcceptOfferConfirmation(context,
-                                            'declined', requestId,  request ,false),
+                                     showAcceptDirectRequestConfirmation(context,
+                                            'declined',  request ),
                                     child: Text(
                                         AppLocalizations.of(context)!.decline),
                                   ),
@@ -265,8 +266,9 @@ class MyBookRequestsScreen extends StatelessWidget {
                                                 showAcceptDirectRequestConfirmation(
                                             context,
                                          'accepted',
-                                            requestId,
+                                         
                                             request
+                                         
                                             ),
                                     // _handleRequest(
                                     //   context,
@@ -283,6 +285,7 @@ class MyBookRequestsScreen extends StatelessWidget {
                           else
                             Row(
                               children: [
+                                if(request['status'] != 'accepted')
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
@@ -305,6 +308,29 @@ class MyBookRequestsScreen extends StatelessWidget {
                                   ),
                                 ),
                                            if (request['status'] == 'accepted') ...[
+                            const SizedBox(width: 16),
+                               Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => _openChat(context, request),
+                    icon: const Icon(Icons.chat),
+                    label: Text(AppLocalizations.of(context)!.contactlender),
+                  ),
+                  const SizedBox(width: 8),
+               
+                    OutlinedButton.icon(
+                      onPressed: () =>
+                          takenConfirmation(context, requestId,request['bookId']),
+                      icon: const Icon(Icons.check),
+                      label: Text(AppLocalizations.of(context)!.markastaken),
+                    ),
+                ],
+              ),
+            ),
+                          ],
+                                           if (request['status'] == "ongoing") ...[
                             const SizedBox(width: 16),
                             SizedBox(
                               height: 36, // Fixed height for the button
