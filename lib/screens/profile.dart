@@ -369,8 +369,8 @@ class _RequestsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('bookRequests')
-          .where('userId', isEqualTo: userId)
+          .collection('directBookRequests')
+          .where('requesterId', isEqualTo: userId)
           .orderBy('createdAt', descending: true)
           .snapshots(),
       builder: (context, snapshot) {

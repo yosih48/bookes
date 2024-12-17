@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 class RequestCard extends StatelessWidget {
   final Map<String, dynamic> request;
   final String requestId;
@@ -19,15 +20,19 @@ class RequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
+
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('bookOffers')
-          .where('requestId', isEqualTo: requestId)
+          .collection('available_books')
+          .where('bookId', isEqualTo: request['bookId'])
           .snapshots(),
       builder: (context, snapshot) {
         int offersCount = snapshot.hasData ? snapshot.data!.docs.length : 0;
-
+              if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+         final bookDoc = snapshot.data!.docs.isNotEmpty ? snapshot.data!.docs.first : null;
+        final bookData = bookDoc?.data() as Map<String, dynamic>?;
         return Card(
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -38,7 +43,7 @@ class RequestCard extends StatelessWidget {
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
-                    request['imageUrl'] ?? '',
+                    bookData!['imageUrl'] ?? '',
                     width: 60,
                     height: 80,
                     fit: BoxFit.cover,
@@ -51,11 +56,11 @@ class RequestCard extends StatelessWidget {
                   ),
                 ),
                 title: Text(
-                  request['title'] ?? 'Unknown Book',
+                  bookData!['title'] ?? 'Unknown Book',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text(request['author'] ?? 'Unknown Author'),
-                trailing: _buildStatusChip(request['status'], context),
+                subtitle: Text(bookData!['author'] ?? 'Unknown Author'),
+                trailing: _buildStatusChip(request!['status'], context),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -63,25 +68,25 @@ class RequestCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${AppLocalizations.of(context)!.posted} ${_formatDate(request['createdAt'])}',
+                      '${AppLocalizations.of(context)!.posted} ${_formatDate(bookData!['createdAt'])}',
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 12,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    if(request['requestType'] != 'DirectRequest')
-                    Row(
-                      children: [
-                        Icon(Icons.people_outline,
-                            size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Text(
-                          '$offersCount ${AppLocalizations.of(context)!.offersCount}',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
+                    // if (request['requestType'] != 'DirectRequest')
+                    //   Row(
+                    //     children: [
+                    //       Icon(Icons.people_outline,
+                    //           size: 16, color: Colors.grey[600]),
+                    //       const SizedBox(width: 4),
+                    //       Text(
+                    //         '$offersCount ${AppLocalizations.of(context)!.offersCount}',
+                    //         style: TextStyle(color: Colors.grey[600]),
+                    //       ),
+                    //     ],
+                    //   ),
                   ],
                 ),
               ),
@@ -93,9 +98,10 @@ class RequestCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () => showCancelRequestConfirmation(context, requestId),
-                          child:  Text(
-                              AppLocalizations.of(context)!.cancelrequest),
+                          onPressed: () =>
+                              showCancelRequestConfirmation(context, requestId),
+                          child:
+                              Text(AppLocalizations.of(context)!.cancelrequest),
                         ),
                       ),
                       // if (offersCount > 0) ...[
@@ -130,7 +136,7 @@ class RequestCard extends StatelessWidget {
         color = Colors.green;
         label = AppLocalizations.of(context)!.fulfilled;
         break;
-              case 'accepted':
+      case 'accepted':
         color = Colors.green;
         label = AppLocalizations.of(context)!.accepted;
         break;
@@ -141,6 +147,10 @@ class RequestCard extends StatelessWidget {
       case 'Pending Owner':
         color = Colors.orange;
         label = AppLocalizations.of(context)!.pendingOwner;
+        break;
+      case 'ongoing':
+        color = Colors.orange;
+        label = AppLocalizations.of(context)!.active;
         break;
       default:
         color = Colors.grey;
@@ -161,7 +171,6 @@ class RequestCard extends StatelessWidget {
     );
   }
 
-
   void _viewOffers(BuildContext context) {
     // Navigator.of(context).push(
     //   MaterialPageRoute(
@@ -171,6 +180,7 @@ class RequestCard extends StatelessWidget {
     // );
   }
 }
+
 String _formatDate(dynamic date) {
   if (date == null) return 'Unknown date';
   if (date is Timestamp) {
@@ -178,9 +188,9 @@ String _formatDate(dynamic date) {
   }
   return 'Invalid date';
 }
-class RequestService{
 
-   static Future<void> cancelRequest (BuildContext context, requestId) async {
+class RequestService {
+  static Future<void> cancelRequest(BuildContext context, requestId) async {
     // Implement request cancellation
     FirebaseFirestore.instance
         .collection('bookRequests')
